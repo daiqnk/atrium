@@ -1,7 +1,7 @@
 /**
  * App 系列目录 —— 母品牌「心庭」下的多个 App 系列。
  *
- * 「微光」只是第一个系列；未来会有「云佛」（佛系减压）、「云塔罗」（塔罗自察）等。
+ * 「微光」只是第一个系列；未来会有「云佛」（佛系减压）等。
  * 这里作为唯一来源，apps 列表页按此分组渲染，未上线 / 暂无 App 的系列显示占位空位。
  *
  * 关联方式：App 的 frontmatter `series` 字段是自由字符串（zh 用中文名、en 用英文名），
@@ -47,16 +47,6 @@ export const seriesList: Series[] = [
     icon: '☁️',
     status: 'planned',
     match: ['云佛', 'Cloud Buddha'],
-  },
-  {
-    slug: 'yuntarot',
-    zh: '云塔罗',
-    en: 'Cloud Tarot',
-    zhDesc: '用塔罗做一面镜子，照见此刻的自己。',
-    enDesc: 'Use the tarot as a mirror for the present self.',
-    icon: '🃏',
-    status: 'planned',
-    match: ['云塔罗', 'Cloud Tarot'],
   },
 ];
 
