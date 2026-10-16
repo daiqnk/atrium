@@ -1,10 +1,9 @@
 /**
  * 隐私政策 / 支持页用到的公开信息（均来自 App Store 公开页面，2026-10-16 核对）。
  */
-export const developerName = 'Beijing Qeego E-commerce Co, Ltd.';
+/** 对外只写品牌名（da 2026-10-16 定：不写公司名） */
+export const brandName = 'Atrium';
 
-/** 支持渠道：部署后的 GitHub 仓库 Issues（仓库 daiqnk/atrium 建好后生效） */
-export const supportIssuesUrl = 'https://github.com/daiqnk/atrium/issues';
 
 /** 各 App 在 App Store 上登记的官方隐私政策链接 */
 export const appPrivacyPolicies: { slug: string; zh: string; en: string; url: string }[] = [

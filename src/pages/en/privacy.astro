@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { getDict } from '@/i18n/utils';
-import { developerName, appPrivacyPolicies, supportIssuesUrl } from '@/data/legal';
+import { brandName, appPrivacyPolicies } from '@/data/legal';
 import { withBase } from '@/utils/paths';
 
 const dict = getDict('en');
@@ -26,7 +26,7 @@ const dict = getDict('en');
 
       <h2>2. Gleam series apps</h2>
       <p>
-        The developer of the Gleam apps on the App Store is <strong>{developerName}</strong>. According to the developer's App Store privacy labels, each app below is
+        The Gleam apps are part of the <strong>{brandName}</strong> brand. According to each app's App Store privacy label, each app below is
         <strong>"Data Not Collected."</strong> The labels are self-reported by the developer and have not been verified by Apple.
       </p>
       <ul>
@@ -40,7 +40,7 @@ const dict = getDict('en');
       <p>Each app's official privacy policy is the authoritative source. For example, When Will It Come uses calendar access only to read local events and does not upload, store or share them.</p>
 
       <h2>3. Contact</h2>
-      <p>Questions about privacy? Use the channels on the <a href={withBase('/en/support')}>Support page</a> (<a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a>).</p>
+      <p>Questions about privacy? Contact us via the app's App Store page; see the <a href={withBase('/en/support')}>Support page</a>.</p>
 
       <h2>4. Changes</h2>
       <p>If this policy changes, we will update the "Last updated" date at the top of this page.</p>

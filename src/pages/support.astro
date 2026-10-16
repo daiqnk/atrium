@@ -2,7 +2,6 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { getDict } from '@/i18n/utils';
-import { supportIssuesUrl } from '@/data/legal';
 import { withBase } from '@/utils/paths';
 
 const dict = getDict('zh');
@@ -32,7 +31,7 @@ const dict = getDict('zh');
 
       <h2>联系我们</h2>
       <ul>
-        <li>问题反馈与功能建议：<a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a>（需要 GitHub 账号）</li>
+        <li>问题反馈与功能建议：请通过对应 App 的 App Store 页面联系我们</li>
         <li>反馈时请写明 App 名称、iPhone 型号和 iOS 版本，方便定位问题</li>
       </ul>
 

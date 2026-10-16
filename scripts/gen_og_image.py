@@ -8,7 +8,7 @@
   - 不消耗生图额度
 
 改文案 / 改配色：直接改下面的常量后重跑
-    C:/Users/daiqn/.workbuddy/binaries/python/versions/3.13.12/python.exe scripts/gen_og_image.py
+    python scripts/gen_og_image.py
 """
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont

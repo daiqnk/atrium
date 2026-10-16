@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/ui/PageHeader.astro';
 import { getDict } from '@/i18n/utils';
-import { developerName, appPrivacyPolicies, supportIssuesUrl } from '@/data/legal';
+import { brandName, appPrivacyPolicies } from '@/data/legal';
 import { withBase } from '@/utils/paths';
 
 const dict = getDict('zh');
@@ -26,7 +26,7 @@ const dict = getDict('zh');
 
       <h2>二、微光系列 App</h2>
       <p>
-        微光系列 App 在 App Store 上的开发者是 <strong>{developerName}</strong>。根据开发者在 App Store 上的隐私标签，以下 App 均为
+        微光系列 App 属于 <strong>{brandName}</strong> 品牌。根据各 App 在 App Store 上的隐私标签，以下 App 均为
         <strong>「未收集数据（Data Not Collected）」</strong>。这些标签由开发者自行申报，Apple 未做核验。
       </p>
       <ul>
@@ -40,7 +40,7 @@ const dict = getDict('zh');
       <p>各 App 的具体隐私处理以其官方隐私政策为准。例如《什么时候到》的日历权限只用于读取本地事件，不上传、不存储、不分享。</p>
 
       <h2>三、联系我们</h2>
-      <p>对隐私有疑问，可以通过 <a href={withBase('/support')}>支持页</a> 列出的渠道联系我们（<a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a>）。</p>
+      <p>对隐私有疑问，请通过对应 App 的 App Store 页面联系我们，详见<a href={withBase('/support')}>支持页</a>。</p>
 
       <h2>四、变更</h2>
       <p>本政策如有更新，会修改本页顶部的「最后更新」日期。</p>
