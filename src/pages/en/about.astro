@@ -1,0 +1,47 @@
+---
+import { withBase } from '@/utils/paths';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getDict } from '@/i18n/utils';
+
+const dict = getDict('en');
+---
+
+<BaseLayout
+  title={`About · ${dict.siteName}`}
+  description="About this site and who builds it."
+>
+  <section class="container-prose pt-12 pb-24">
+    <PageHeader eyebrow="About" title="About this site" />
+
+    <div class="prose-warm">
+      <p>
+        <strong>Atrium</strong> is a small site that puts
+        <strong>psychology principles, tools, and actionable practices</strong> in one place.
+      </p>
+      <p>
+        Three blocks, complementary by design:
+      </p>
+      <ul>
+        <li><strong>App Series</strong> — the "Gleam" series of small iOS apps for relaxation, awareness and focus, available as one-time purchases on the App Store.</li>
+        <li><strong>Psychology Knowledge</strong> — short, plain-language articles, each citing the original studies.</li>
+        <li><strong>Daily Wellness</strong> — small practices you can use right now, 3–10 minutes each.</li>
+      </ul>
+
+      <h2>Why I built this</h2>
+      <p>
+        The most useful parts of psychology rarely live in papers — they live in the 3 minutes we are willing
+        to turn a finding into a small action. This site tries to make those 3 minutes as short as possible.
+      </p>
+
+      <h2>Boundaries</h2>
+      <ul>
+        <li>This is an education & tools site. It is <strong>not a substitute for professional consultation or diagnosis</strong>.</li>
+        <li>According to their App Store privacy labels, the Gleam apps are "Data Not Collected" — see the <a href={withBase('/en/privacy')}>Privacy Policy</a>.</li>
+        <li>The author is not a licensed clinician or therapist. Some articles are written with AI assistance; cited studies are checked against the original publication details.</li>
+        <li>If you need help, please contact a professional; in a crisis, contact local emergency services (US: call or text 988).</li>
+        <li>The aim is "gentle science": no anxiety-driven framing, no symptom-selling.</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

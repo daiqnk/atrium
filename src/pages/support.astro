@@ -1,0 +1,43 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getDict } from '@/i18n/utils';
+import { supportIssuesUrl } from '@/data/legal';
+import { withBase } from '@/utils/paths';
+
+const dict = getDict('zh');
+---
+
+<BaseLayout title={`支持 · ${dict.siteName}`} description="微光系列 App 的常见问题与联系方式。">
+  <section class="container-prose pt-12 pb-24">
+    <PageHeader eyebrow="支持" title="帮助与支持" description="微光系列 App 的常见问题，以及怎么联系我们。" />
+
+    <div class="prose-warm">
+      <h2>常见问题</h2>
+
+      <h3>怎么打开设置？</h3>
+      <p>微光系列的大部分 App 界面极简，设置是隐藏的：<strong>摇一摇手机</strong>即可唤出（如《微光·虚度》切换滤镜、《微光·指尖》《微光·潮汐》的设置面板、《什么时候到》切换日历源）。《微光·指尖》的环境音可以在侧边抽屉中关闭。</p>
+
+      <h3>换了手机，需要重新购买吗？</h3>
+      <p>不需要。微光系列 App 是一次性付费下载。用同一个 Apple ID 登录 App Store，在「已购项目」里重新下载即可。App 支持「家人共享」。</p>
+
+      <h3>怎么申请退款？</h3>
+      <p>App 由 Apple 代为收款，退款需要通过 Apple 申请：访问 <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener">reportaproblem.apple.com</a>，或查看 <a href="https://support.apple.com/zh-cn/118223" target="_blank" rel="noopener">Apple 支持：申请退款</a>。</p>
+
+      <h3>我的数据会被上传吗？</h3>
+      <p>根据 App Store 隐私标签，微光系列 App 均为「未收集数据」。详见 <a href={withBase('/privacy')}>隐私政策</a>。</p>
+
+      <h3>为什么在中国大陆 App Store 搜不到《微光·潮汐》？</h3>
+      <p>截至 2026-10-16，《微光·潮汐》暂未在中国大陆 App Store 上架，可以在香港、美国等地区的 App Store 下载。</p>
+
+      <h2>联系我们</h2>
+      <ul>
+        <li>问题反馈与功能建议：<a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a>（需要 GitHub 账号）</li>
+        <li>反馈时请写明 App 名称、iPhone 型号和 iOS 版本，方便定位问题</li>
+      </ul>
+
+      <h2>需要心理支持？</h2>
+      <p>微光系列是放松与觉察类的生活方式应用，不是医疗或心理治疗产品。如果你正在经历持续的情绪困扰，请寻求专业帮助；紧急情况请拨打 120 / 110，或全国心理援助热线 <strong>12356</strong>。</p>
+    </div>
+  </section>
+</BaseLayout>

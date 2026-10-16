@@ -1,0 +1,180 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AppCard from '@/components/AppCard.astro';
+import SeriesBackdrop from '@/components/SeriesBackdrop.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import { getDict } from '@/i18n/utils';
+import { tpl, normalizeStatus } from '@/i18n/labels';
+import { seriesList, seriesOf } from '@/data/series';
+
+const dict = getDict('en');
+const allApps = await getCollection('apps', ({ data }) => data.locale === 'en');
+const statusOrder = { live: 0, 'coming-soon': 1, draft: 2 } as const;
+const sortApps = (list: typeof allApps) =>
+  list.sort((a, b) => {
+    const sa = statusOrder[normalizeStatus(a.data.status)];
+    const sb = statusOrder[normalizeStatus(b.data.status)];
+    if (sa !== sb) return sa - sb;
+    if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+    return a.data.order - b.data.order;
+  });
+
+// 按系列目录分组：有 App 的系列渲染卡片，暂无 App 的预留系列显示「Coming soon」占位
+const grouped = seriesList.map((s) => ({
+  series: s,
+  apps: sortApps(allApps.filter((a) => seriesOf(a.data.series)?.slug === s.slug)),
+}));
+const liveCount = allApps.filter((a) => normalizeStatus(a.data.status) === 'live').length;
+---
+
+<BaseLayout
+  title={`${dict.sectionAppsTitle} · ${dict.siteName}`}
+  description={dict.sectionAppsDesc}
+>
+  <section class="series-hero-wrap">
+    <SeriesBackdrop
+      title={dict.sectionAppsTitle}
+      subtitle={dict.sectionAppsDesc}
+      count={tpl(dict.countLiveApps, { n: liveCount })}
+    />
+  </section>
+
+  <section class="container-narrow pt-12 pb-24">
+    {
+      grouped.map(({ series, apps }) => (
+        <div class="series-block">
+          <RevealOnScroll>
+            <div class="series-head">
+              <span class="series-icon" aria-hidden="true">{series.icon}</span>
+              <div class="series-head-text">
+                <h2 class="series-name">{series.en}</h2>
+                <p class="series-desc">{series.enDesc}</p>
+              </div>
+              {apps.length > 0 && (
+                <span class="series-count">{tpl(dict.countApps, { n: apps.length })}</span>
+              )}
+            </div>
+          </RevealOnScroll>
+
+          {apps.length > 0 ? (
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {apps.map((entry, i) => (
+                <RevealOnScroll y={18} delay={i * 70} class="h-full">
+                  <AppCard
+                    slug={entry.slug}
+                    title={entry.data.title}
+                    subtitle={entry.data.subtitle}
+                    description={entry.data.description}
+                    icon={entry.data.icon}
+                    category={entry.data.category}
+                    series={entry.data.series}
+                    tags={entry.data.tags}
+                    status={entry.data.status}
+                    platforms={entry.data.platforms}
+                    featured={entry.data.featured}
+                    order={entry.data.order}
+                    cover={entry.data.cover}
+                    iconImage={entry.data.iconImage}
+                    accentColor={entry.data.accentColor}
+                  />
+                </RevealOnScroll>
+              ))}
+            </div>
+          ) : (
+            <RevealOnScroll y={14}>
+              <div class="series-empty">
+                <span class="series-empty-icon" aria-hidden="true">{series.icon}</span>
+                <div>
+                  <p class="series-empty-title">{series.en} · Coming soon</p>
+                  <p class="series-empty-desc">{series.enDesc}</p>
+                </div>
+              </div>
+            </RevealOnScroll>
+          )}
+        </div>
+      ))
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .series-hero-wrap {
+    padding-top: 2.5rem;
+  }
+
+  .series-block {
+    margin-bottom: 4rem;
+  }
+  .series-block:last-child {
+    margin-bottom: 0;
+  }
+
+  .series-head {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .series-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    background: theme('colors.cream.100');
+    border: 1px solid theme('colors.cream.200');
+    flex-shrink: 0;
+  }
+  .series-head-text {
+    min-width: 0;
+    flex: 1;
+  }
+  .series-name {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .series-desc {
+    margin: 0.15rem 0 0;
+    color: theme('colors.ink.700');
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .series-count {
+    color: theme('colors.ink.700');
+    font-size: 0.85rem;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  .series-empty {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.75rem 1.5rem;
+    border: 1px dashed theme('colors.cream.200');
+    border-radius: theme('borderRadius.soft');
+    background: var(--surface-soft);
+  }
+  .series-empty-icon {
+    font-size: 1.8rem;
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
+  .series-empty-title {
+    margin: 0 0 0.2rem;
+    font-weight: 600;
+    color: theme('colors.ink.900');
+  }
+  .series-empty-desc {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+</style>

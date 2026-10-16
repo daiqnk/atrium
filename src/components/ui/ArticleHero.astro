@@ -1,0 +1,260 @@
+---
+import RevealOnScroll from './RevealOnScroll.astro';
+import Badge from './Badge.astro';
+import Chip from './Chip.astro';
+import { difficultyLabel, difficultyTone, word, formatDate } from '@/i18n/labels';
+import type { Locale } from '@/i18n/dictionaries';
+
+/**
+ * 知识 / 调适详情页的 hero 区。
+ *
+ * 与 App 详情 hero 共享同一套视觉节奏：暗纹底 / eyebrow 横线 / 大字号衬线标题 /
+ * 章节式 Meta 块。区别在于：App 详情左 cover 右 meta，知识/调适是单栏 + Meta 块 /
+ * Difficulty 块。同一份视觉语言可以让三个详情页「气质一样，细节不同」。
+ *
+ * 用法：
+ *   <ArticleHero
+ *     variant="knowledge"
+ *     category="认知行为"
+ *     title="认知歪曲：为什么脑子里总有一个黑法官"
+ *     lede="一篇帮你梳理 9 种常见认知歪曲..."
+ *     publishedAt={entry.data.publishedAt}
+ *     readingTime={6}
+ *     locale="zh"
+ *   />
+ *
+ *   <ArticleHero
+ *     variant="wellness"
+ *     category="呼吸"
+ *     title="盒式呼吸：4 拍把情绪重置"
+ *     lede="吸气 4 秒、屏 4 秒、呼 4 秒、屏 4 秒..."
+ *     publishedAt={entry.data.publishedAt}
+ *     duration="3 分钟"
+ *     difficulty="easy"
+ *     locale="zh"
+ *   />
+ */
+
+interface Props {
+  variant: 'knowledge' | 'wellness';
+  category: string;
+  title: string;
+  lede: string;
+  publishedAt: Date;
+  readingTime?: number;
+  duration?: string;
+  difficulty?: string;
+  locale: Locale;
+  /** 段落正文外的标签，仅 knowledge 用 */
+  tags?: string[];
+}
+
+const {
+  variant,
+  category,
+  title,
+  lede,
+  publishedAt,
+  readingTime,
+  duration,
+  difficulty,
+  locale,
+  tags,
+} = Astro.props;
+
+// 国际化 Meta 词（只用于难度块、阅读时间）
+const DIFFICULTY_LABEL = {
+  zh: { easy: '轻松上手', medium: '需一点专注', hard: '需投入' },
+  en: { easy: 'Easy', medium: 'Moderate', hard: 'Demanding' },
+};
+const DIFFICULTY_TONE_KEY = { easy: 'live', medium: 'soon', hard: 'draft' } as const;
+
+// variant 决定右上 Meta 块的形态：knowledge 是 readingTime + date，wellness 是 duration + difficulty
+const showReading = variant === 'knowledge' && typeof readingTime === 'number';
+const showDifficulty = variant === 'wellness' && typeof difficulty === 'string' && difficulty in DIFFICULTY_TONE_KEY;
+const showDuration = variant === 'wellness' && typeof duration === 'string';
+---
+
+<RevealOnScroll as="header" y={20}>
+  <header class="article-hero">
+    {/* 暗纹底：与首页 hero 同语言，但稍弱（避免与长文正文争抢） */}
+    <div class="hero-pattern" aria-hidden="true"></div>
+
+    <div class="article-hero-inner">
+      <div class="article-hero-meta">
+        <Badge kind="series" series={category} size="md" />
+        <h1 class="article-hero-title">{title}</h1>
+        <p class="article-hero-lede">{lede}</p>
+      </div>
+
+      <aside class="article-hero-aside">
+        {showReading && (
+          <div class="meta-block">
+            <div class="meta-block-label">{word('minute', locale)}</div>
+            <div class="meta-block-value">
+              <Chip kind="meta" text={`${readingTime} ${word('minute', locale)}`} />
+            </div>
+          </div>
+        )}
+        {showDuration && (
+          <div class="meta-block">
+            <div class="meta-block-label">时长</div>
+            <div class="meta-block-value">{duration}</div>
+          </div>
+        )}
+        {showDifficulty && (
+          <div class="meta-block">
+            <div class="meta-block-label">{word('difficulty', locale)}</div>
+            <div class="meta-block-value">
+              <Badge
+                kind="neutral"
+                tone={difficultyTone(difficulty)}
+                text={DIFFICULTY_LABEL[locale][difficulty as 'easy' | 'medium' | 'hard'] ?? difficultyLabel(difficulty, locale)}
+              />
+            </div>
+          </div>
+        )}
+        <div class="meta-block">
+          <div class="meta-block-label">{locale === 'zh' ? '更新' : 'Updated'}</div>
+          <div class="meta-block-value">{formatDate(publishedAt, locale)}</div>
+        </div>
+      </aside>
+    </div>
+
+    {tags && tags.length > 0 && (
+      <div class="article-hero-tags">
+        {tags.map((t) => <span class="hero-tag">#{t}</span>)}
+      </div>
+    )}
+  </header>
+</RevealOnScroll>
+
+<style>
+  .article-hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 2.5rem 1.5rem 2.25rem;
+    margin-bottom: 2.5rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(180deg, theme('colors.cream.50'), var(--surface));
+    border: 1px solid theme('colors.cream.200');
+    box-shadow: 0 10px 30px -20px var(--shadow);
+  }
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(244, 194, 194, 0.18), transparent 50%),
+      radial-gradient(circle at 100% 50%, rgba(197, 210, 181, 0.14), transparent 55%);
+  }
+  .hero-pattern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(74, 60, 46, 0.05) 1px,
+      transparent 1.5px
+    );
+    background-size: 28px 28px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 70%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 70%);
+    opacity: 0.6;
+  }
+  .article-hero-inner {
+    position: relative;
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .article-hero-meta {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .article-hero-title {
+    margin: 0;
+    font-size: clamp(1.9rem, 4vw, 2.85rem);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: theme('colors.ink.900');
+  }
+  .article-hero-lede {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 1.05rem;
+    line-height: 1.75;
+    max-width: 52ch;
+  }
+  .article-hero-aside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 0.65rem;
+    flex: 0 0 auto;
+    min-width: 260px;
+  }
+  .meta-block {
+    background: var(--glass-strong);
+    border: 1px solid theme('colors.cream.200');
+    padding: 0.7rem 1rem;
+    border-radius: 0.95rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+  .meta-block-label {
+    color: theme('colors.ink.700');
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .meta-block-value {
+    font-weight: 500;
+    color: theme('colors.ink.900');
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  /* Tags 放 hero 之下，正文之上，浅描边款（不抢内容节奏） */
+  .article-hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 1.4rem;
+    padding-top: 1.25rem;
+    border-top: 1px dashed theme('colors.cream.200');
+  }
+  .hero-tag {
+    font-size: 0.78rem;
+    color: theme('colors.ink.700');
+    background: var(--glass);
+    border: 1px solid theme('colors.cream.200');
+    padding: 0.26rem 0.55rem;
+    border-radius: 0.45rem;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .hero-tag:hover {
+    background: theme('colors.rose.50');
+    color: theme('colors.ink.900');
+  }
+  @media (max-width: 640px) {
+    .article-hero {
+      padding: 1.75rem 1.15rem 1.6rem;
+      border-radius: 1.15rem;
+    }
+    .article-hero-aside {
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+    }
+  }
+</style>

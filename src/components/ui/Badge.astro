@@ -1,0 +1,140 @@
+---
+import { getLocaleFromUrl } from '@/i18n/utils';
+import { word, statusLabel, statusTone, type Tone } from '@/i18n/labels';
+
+/**
+ * 状态徽标 —— 全站所有「状态 / 精选 / 系列」类标签的唯一出口。
+ *
+ * 用法：
+ *   <Badge kind="status" status={app.data.status} />        // 已上线 / 即将上线 / 开发中
+ *   <Badge kind="featured" />                                // 精选
+ *   <Badge kind="series" series="微光" />                    // 系列名
+ *   <Badge kind="neutral" text="自定义" />                   // 兜底
+ *
+ * 颜色与文案都由 tone 统一决定，禁止在页面里另写一份颜色，
+ * 否则同一状态在不同页面会出现色差。
+ */
+
+interface Props {
+  kind: 'status' | 'featured' | 'series' | 'neutral';
+  status?: string | null;
+  series?: string | null;
+  text?: string | null;
+  /** 显式指定配色，覆盖 kind 推导出的默认 tone（如难度用 status 的三档色） */
+  tone?: Tone;
+  size?: 'sm' | 'md';
+  dot?: boolean;
+}
+
+const { kind, status, series, text, tone: toneOverride, size = 'sm', dot = true } = Astro.props;
+
+const locale = getLocaleFromUrl(Astro.url);
+
+let tone: Tone = 'neutral';
+let label = '';
+
+if (kind === 'status') {
+  tone = statusTone(status);
+  label = text ?? statusLabel(status, locale);
+} else if (kind === 'featured') {
+  tone = 'featured';
+  label = text ?? word('featured', locale);
+} else if (kind === 'series') {
+  tone = 'series';
+  label = text ?? series ?? '';
+} else {
+  tone = 'neutral';
+  label = text ?? '';
+}
+
+const finalTone = toneOverride ?? tone;
+---
+
+{label && (
+  <span class="badge" data-tone={finalTone} data-size={size}>
+    {dot && <span class="badge-dot" aria-hidden="true"></span>}
+    {label}
+  </span>
+)}
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid transparent;
+    /* 与 tone 相关的变量，下面按 data-tone 覆盖 */
+    --badge-bg: theme('colors.cream.100');
+    --badge-fg: theme('colors.ink.700');
+    --badge-bd: transparent;
+    --badge-dot: theme('colors.ink.700');
+    background: var(--badge-bg);
+    color: var(--badge-fg);
+    border-color: var(--badge-bd);
+  }
+
+  .badge[data-size='sm'] {
+    font-size: 0.72rem;
+    padding: 0.28rem 0.6rem;
+    letter-spacing: 0.01em;
+  }
+  .badge[data-size='md'] {
+    font-size: 0.78rem;
+    padding: 0.34rem 0.75rem;
+    letter-spacing: 0.01em;
+  }
+
+  .badge-dot {
+    width: 0.34rem;
+    height: 0.34rem;
+    border-radius: 9999px;
+    background: var(--badge-dot);
+    flex-shrink: 0;
+  }
+
+  /* 已上线：柔和的鼠尾草绿 */
+  .badge[data-tone='live'] {
+    --badge-bg: theme('colors.sage.100');
+    --badge-fg: var(--live-fg);
+    --badge-dot: theme('colors.sage.300');
+  }
+  /* 即将上线：玫瑰粉 */
+  .badge[data-tone='soon'] {
+    --badge-bg: theme('colors.rose.100');
+    --badge-fg: var(--soon-fg);
+    --badge-dot: theme('colors.rose.300');
+  }
+  /* 开发中：米色中性 */
+  .badge[data-tone='draft'] {
+    --badge-bg: theme('colors.cream.100');
+    --badge-fg: theme('colors.ink.700');
+    --badge-bd: theme('colors.cream.200');
+    --badge-dot: theme('colors.rose.200');
+  }
+  /* 精选：实心玫瑰 */
+  .badge[data-tone='featured'] {
+    --badge-bg: theme('colors.rose.200');
+    --badge-fg: theme('colors.ink.900');
+    --badge-dot: theme('colors.ink.700');
+  }
+  /* 系列：描边 */
+  .badge[data-tone='series'] {
+    --badge-bg: theme('colors.cream.50');
+    --badge-fg: theme('colors.ink.700');
+    --badge-bd: theme('colors.cream.200');
+    --badge-dot: theme('colors.sage.300');
+  }
+  .badge[data-tone='neutral'] {
+    --badge-bg: theme('colors.cream.100');
+    --badge-fg: theme('colors.ink.700');
+    --badge-bd: theme('colors.cream.200');
+    --badge-dot: theme('colors.rose.200');
+  }
+</style>

@@ -1,0 +1,241 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import AppCard from '@/components/AppCard.astro';
+import ArticleCard from '@/components/ArticleCard.astro';
+import { getDict } from '@/i18n/utils';
+import { scenes, getScene, SCENE_TONES } from '@/data/scenes';
+
+export async function getStaticPaths() {
+  return scenes.map((scene) => ({
+    params: { slug: scene.slug },
+    props: { scene },
+  }));
+}
+
+interface Props {
+  scene: (typeof scenes)[number];
+}
+
+const { scene } = Astro.props;
+const dict = getDict('zh');
+const locale = 'zh' as const;
+const tone = SCENE_TONES[scene.tone];
+
+// 按 tags 匹配聚合三类内容（命中 scene 任一 tag 即归入）
+// wellness collection 没有 tags 字段，需防御 undefined
+const match = (tags?: string[]) => (tags ?? []).some((t) => scene.tags.includes(t));
+
+const apps = (await getCollection('apps', ({ data }) => data.locale === 'zh'))
+  .filter((e) => match(e.data.tags));
+const knowledge = (await getCollection('knowledge', ({ data }) => data.locale === 'zh'))
+  .filter((e) => match(e.data.tags));
+const wellness = (await getCollection('wellness', ({ data }) => data.locale === 'zh'))
+  .filter((e) => match(e.data.tags));
+
+const empty = apps.length === 0 && knowledge.length === 0 && wellness.length === 0;
+---
+
+<BaseLayout title={`${scene.zh} · ${dict.siteName}`} description={scene.zhLine}>
+  <article class="scene-page">
+    <section class="scene-hero" style={`--scene-bg:${tone.bg};--scene-accent:${tone.accent};--scene-glow:${tone.glow};`}>
+      <div class="container-narrow scene-hero-inner">
+        <RevealOnScroll y={18}>
+          <a href={withBase('/scenes')} class="scene-back" data-no-lang-switch>
+            <span aria-hidden="true">←</span> 全部场景
+          </a>
+          <p class="scene-eyebrow"><span class="scene-icon" aria-hidden="true">{scene.icon}</span> 需求场景</p>
+          <h1 class="scene-title">{scene.zh}</h1>
+          <p class="scene-line">{scene.zhLine}</p>
+        </RevealOnScroll>
+      </div>
+    </section>
+
+    <section class="container-narrow section-air">
+      <RevealOnScroll>
+        <PageHeader eyebrow="场景内内容" title={`属于「${scene.zh}」的内容`} description="这里会把和这个状态相关的 App、知识与调适练习归到一处。" />
+      </RevealOnScroll>
+
+      {empty ? (
+        <RevealOnScroll y={14}>
+          <div class="scene-empty">
+            <p class="scene-empty-icon" aria-hidden="true">🌱</p>
+            <p class="scene-empty-title">内容整理中</p>
+            <p class="scene-empty-desc">这个场景的内容还在整理。等对应的 App / 文章 / 练习打上「{scene.zh}」标签后，就会自动出现在这里。</p>
+          </div>
+        </RevealOnScroll>
+      ) : (
+        <>
+          {apps.length > 0 && (
+            <RevealOnScroll y={14}>
+              <h2 class="scene-subhead">相关 App</h2>
+              <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {apps.map((e) => (
+                  <AppCard
+                    slug={e.slug}
+                    title={e.data.title}
+                    subtitle={e.data.subtitle}
+                    description={e.data.description}
+                    icon={e.data.icon}
+                    category={e.data.category}
+                    series={e.data.series}
+                    tags={e.data.tags}
+                    status={e.data.status}
+                    platforms={e.data.platforms}
+                    featured={e.data.featured}
+                    order={e.data.order}
+                    cover={e.data.cover}
+                    iconImage={e.data.iconImage}
+                    accentColor={e.data.accentColor}
+                  />
+                ))}
+              </div>
+            </RevealOnScroll>
+          )}
+
+          {knowledge.length > 0 && (
+            <RevealOnScroll y={14}>
+              <h2 class="scene-subhead">相关文章</h2>
+              <div class="grid md:grid-cols-2 gap-6">
+                {knowledge.map((e) => (
+                  <ArticleCard
+                    slug={e.slug}
+                    title={e.data.title}
+                    description={e.data.description}
+                    category={e.data.category}
+                    tags={e.data.tags}
+                    publishedAt={e.data.publishedAt}
+                    readingTime={e.data.readingTime}
+                    variant="knowledge"
+                  />
+                ))}
+              </div>
+            </RevealOnScroll>
+          )}
+
+          {wellness.length > 0 && (
+            <RevealOnScroll y={14}>
+              <h2 class="scene-subhead">相关练习</h2>
+              <div class="grid md:grid-cols-2 gap-6">
+                {wellness.map((e) => (
+                  <ArticleCard
+                    slug={e.slug}
+                    title={e.data.title}
+                    description={e.data.description}
+                    category={e.data.category}
+                    tags={[]}
+                    publishedAt={e.data.publishedAt}
+                    variant="wellness"
+                    duration={e.data.duration}
+                    difficulty={e.data.difficulty}
+                  />
+                ))}
+              </div>
+            </RevealOnScroll>
+          )}
+        </>
+      )}
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .scene-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--scene-bg);
+    border-bottom: 1px solid theme('colors.cream.200');
+  }
+  .scene-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, var(--scene-glow), transparent 55%),
+      radial-gradient(circle at 85% 70%, var(--scene-glow), transparent 50%);
+    pointer-events: none;
+  }
+  .scene-hero-inner {
+    position: relative;
+    padding: 3.5rem 1.5rem 4rem;
+    max-width: 800px;
+    margin-inline: auto;
+  }
+  .scene-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: theme('colors.ink.700');
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .scene-back:hover {
+    color: theme('colors.rose.300');
+  }
+  .scene-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+    color: theme('colors.ink.700');
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .scene-icon {
+    font-size: 1.4rem;
+  }
+  .scene-title {
+    margin: 0 0 0.75rem;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    color: theme('colors.ink.900');
+  }
+  .scene-line {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 1.12rem;
+    line-height: 1.7;
+    max-width: 40ch;
+  }
+
+  .scene-subhead {
+    margin: 2.5rem 0 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: theme('colors.rose.300');
+  }
+
+  .scene-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: theme('colors.cream.50');
+    border: 1px dashed theme('colors.cream.200');
+    border-radius: theme('borderRadius.soft');
+  }
+  .scene-empty-icon {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+  }
+  .scene-empty-title {
+    margin: 0 0 0.4rem;
+    font-weight: 600;
+    color: theme('colors.ink.900');
+  }
+  .scene-empty-desc {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 0.92rem;
+    max-width: 46ch;
+    margin-inline: auto;
+    line-height: 1.7;
+  }
+</style>

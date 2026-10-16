@@ -1,0 +1,453 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroBackdrop from '@/components/HeroBackdrop.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import SceneCard from '@/components/SceneCard.astro';
+import BreathingOrb from '@/components/BreathingOrb.astro';
+import AppCard from '@/components/AppCard.astro';
+import Badge from '@/components/ui/Badge.astro';
+import { getDict, bareSlug } from '@/i18n/utils';
+import { scenes } from '@/data/scenes';
+
+const locale = 'zh' as const;
+const dict = getDict(locale);
+
+const apps = await getCollection('apps', ({ data }) => data.locale === 'zh');
+const knowledge = await getCollection('knowledge', ({ data }) => data.locale === 'zh');
+const wellness = await getCollection('wellness', ({ data }) => data.locale === 'zh');
+
+const liveApps = apps.filter((a) => a.data.status === 'live');
+
+const recent = [
+  ...liveApps.map((a) => ({
+    kind: 'app' as const,
+    slug: bareSlug(a.slug),
+    title: a.data.title,
+    category: a.data.series ?? 'App',
+    description: a.data.description,
+    publishedAt: a.data.publishedAt,
+  })),
+  ...knowledge.map((a) => ({
+    kind: 'knowledge' as const,
+    slug: bareSlug(a.slug),
+    title: a.data.title,
+    category: a.data.category,
+    description: a.data.description,
+    publishedAt: a.data.publishedAt,
+    readingTime: a.data.readingTime,
+  })),
+  ...wellness.map((a) => ({
+    kind: 'wellness' as const,
+    slug: bareSlug(a.slug),
+    title: a.data.title,
+    category: a.data.category,
+    description: a.data.description,
+    publishedAt: a.data.publishedAt,
+    duration: a.data.duration,
+    difficulty: a.data.difficulty,
+  })),
+]
+  .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf())
+  .slice(0, 4);
+---
+
+<BaseLayout>
+  <!-- Hero：需求导向大标题 -->
+  <section class="hero aurora">
+    <HeroBackdrop />
+    <div class="hero-pattern" aria-hidden="true"></div>
+    <div class="container-narrow hero-inner">
+      <RevealOnScroll y={20}>
+        <p class="hero-eyebrow">
+          <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+          {dict.tagline}
+        </p>
+      </RevealOnScroll>
+
+      <RevealOnScroll y={24} delay={120}>
+        <h1 class="hero-title">
+          此刻的你，<br /><span class="text-gradient">想要哪种状态？</span>
+          <span class="hero-title-en" aria-hidden="true">What kind of headspace are you in?</span>
+        </h1>
+      </RevealOnScroll>
+
+      <RevealOnScroll y={18} delay={220}>
+        <p class="hero-subtitle">焦虑、压力、失眠、专注、自我接纳——按真实感受进来，找到对应的工具、知识与练习。</p>
+      </RevealOnScroll>
+
+      <RevealOnScroll y={14} delay={320}>
+        <div class="hero-ctas">
+          <a href={withBase('/scenes')} class="btn btn-primary btn-lg">开始探索场景</a>
+          <a href={withBase('/apps')} class="btn btn-ghost">{dict.ctaApps}</a>
+        </div>
+      </RevealOnScroll>
+    </div>
+  </section>
+
+  <!-- 需求场景入口（Headspace 式） -->
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <PageHeader
+        eyebrow="Scenes"
+        title="按需求，而不是按目录"
+        description="五个入口，对应五种最常见的状态。点进去，把分散的内容归到一处。"
+        size="lg"
+      />
+    </RevealOnScroll>
+
+    <div class="scene-grid">
+      {scenes.map((scene, i) => (
+        <RevealOnScroll y={20} delay={i * 90}>
+          <SceneCard scene={scene} locale={locale} />
+        </RevealOnScroll>
+      ))}
+    </div>
+  </section>
+
+  <!-- 呼吸体验（Calm 式先体验） -->
+  <section class="breathe-section">
+    <div class="container-narrow">
+      <RevealOnScroll y={18}>
+        <BreathingOrb locale={locale} />
+      </RevealOnScroll>
+    </div>
+  </section>
+
+  <!-- 精选 App 橱窗 -->
+  {liveApps.length > 0 && (
+    <section class="container-narrow section-air">
+      <RevealOnScroll>
+        <PageHeader
+          eyebrow="App 精选"
+          title="把心理学装进小工具"
+          description="放松、觉察、专注的 iOS 小应用，每次只需要几分钟。"
+          size="lg"
+        />
+      </RevealOnScroll>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {liveApps.slice(0, 3).map((entry, i) => (
+          <RevealOnScroll y={18} delay={i * 120}>
+            <AppCard
+              slug={entry.slug}
+              title={entry.data.title}
+              subtitle={entry.data.subtitle}
+              description={entry.data.description}
+              icon={entry.data.icon}
+              category={entry.data.category}
+              series={entry.data.series}
+              tags={entry.data.tags}
+              status={entry.data.status}
+              platforms={entry.data.platforms}
+              featured={entry.data.featured}
+              order={entry.data.order}
+              cover={entry.data.cover}
+              iconImage={entry.data.iconImage}
+              accentColor={entry.data.accentColor}
+            />
+          </RevealOnScroll>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- 信任背书（只放真实数据，不编评分/用户数） -->
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <div class="trust">
+        <div class="trust-item">
+          <span class="trust-num">{apps.length}</span>
+          <span class="trust-label" set:html={`个 App`} />
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">{apps.filter((a) => a.data.status === 'live' && a.data.links?.appStore).length}</span>
+          <span class="trust-label" set:html={`已在 App Store 上架`} />
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">{knowledge.length}</span>
+          <span class="trust-label" set:html={`篇心理学知识`} />
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">0</span>
+          <span class="trust-label" set:html={`类数据被 App 收集<br/>（据 App Store 隐私标签）`} />
+        </div>
+      </div>
+    </RevealOnScroll>
+  </section>
+
+  <!-- 最近更新 -->
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <PageHeader
+        eyebrow="What's new"
+        title="最近更新"
+        description="按发布时间倒序，把新内容 / 新 App / 新练习放到最显眼的位置。"
+      />
+    </RevealOnScroll>
+
+    <RevealOnScroll y={16} delay={120}>
+      <div class="recent-list">
+        {recent.map((item) => (
+          <a class="recent-row" href={withBase(
+            item.kind === 'app'
+              ? `/apps/${item.slug}`
+              : item.kind === 'knowledge'
+                ? `/knowledge/${item.slug}`
+                : `/wellness/${item.slug}`)}>
+            <Badge kind="series" series={item.kind === 'app' ? 'App' : item.category} />
+            <div class="recent-meta">
+              <h4 class="recent-title">{item.title}</h4>
+              <p class="recent-desc">{item.description}</p>
+            </div>
+            <span class="recent-arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </RevealOnScroll>
+  </section>
+
+  <!-- 引文 -->
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <blockquote class="bigquote">
+        <span class="bigquote-mark" aria-hidden="true">“</span>
+        <p>心理学最有用的部分，往往不在论文里，而在我们愿意花 3 分钟把它变成一个动作的时候。</p>
+      </blockquote>
+    </RevealOnScroll>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------------- Hero ---------------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-pattern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(74, 60, 46, 0.06) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 75%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 75%);
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 1.5rem 6rem;
+    text-align: center;
+  }
+  @media (min-width: 768px) {
+    .hero-inner { padding: 7.5rem 1.5rem 9rem; }
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+    padding: 0.42rem 1rem;
+    border-radius: 9999px;
+    background: var(--glass);
+    border: 1px solid theme('colors.cream.200');
+    color: theme('colors.ink.700');
+    font-size: 0.85rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 12px -6px var(--shadow);
+  }
+  .hero-eyebrow-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: theme('colors.sage.300');
+    box-shadow: 0 0 0 4px rgba(122, 142, 106, 0.15);
+  }
+  .hero-title {
+    margin: 0 auto 1.5rem;
+    max-width: 20ch;
+    font-size: clamp(2.4rem, 5.6vw, 4.4rem);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    color: theme('colors.ink.900');
+  }
+  .hero-title-en {
+    display: block;
+    margin-top: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(0.85rem, 1.3vw, 1.05rem);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: theme('colors.ink.700');
+    opacity: 0.45;
+    text-transform: uppercase;
+  }
+  .hero-subtitle {
+    margin: 0 auto 2.5rem;
+    max-width: 56ch;
+    font-size: clamp(1.05rem, 1.4vw, 1.18rem);
+    color: theme('colors.ink.700');
+    line-height: 1.75;
+  }
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .btn-lg {
+    padding: 0.95rem 1.85rem;
+    font-size: 1rem;
+    box-shadow: 0 14px 30px -12px rgba(47, 36, 24, 0.35);
+  }
+
+  /* ---------------- 场景入口 ---------------- */
+  .scene-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+
+  /* ---------------- 呼吸体验区 ---------------- */
+  .breathe-section {
+    position: relative;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(196, 191, 224, 0.14), transparent 60%),
+      linear-gradient(180deg, theme('colors.cream.50'), theme('colors.cream.100'));
+    border-block: 1px solid theme('colors.cream.200');
+  }
+
+  /* ---------------- 信任背书 ---------------- */
+  .trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    padding: 2.5rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid theme('colors.cream.200');
+    border-radius: theme('borderRadius.soft');
+    box-shadow: 0 1px 2px -1px var(--shadow), 0 16px 40px -28px var(--shadow-strong);
+  }
+  .trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 6rem;
+  }
+  .trust-num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: theme('colors.ink.900');
+    line-height: 1;
+  }
+  .trust-label {
+    color: theme('colors.ink.700');
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+  .trust-divider {
+    width: 1px;
+    height: 2.5rem;
+    background: theme('colors.cream.200');
+  }
+  @media (max-width: 640px) {
+    .trust { gap: 1.5rem; }
+    .trust-divider { display: none; }
+  }
+
+  /* ---------------- 最近更新 ---------------- */
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-top: 1px solid theme('colors.cream.200');
+  }
+  .recent-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.15rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid theme('colors.cream.200');
+    transition: background 220ms ease, transform 220ms ease;
+  }
+  .recent-row:hover {
+    background: theme('colors.rose.50');
+    transform: translateX(2px);
+  }
+  .recent-meta { min-width: 0; }
+  .recent-title {
+    margin: 0 0 0.2rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: theme('colors.ink.900');
+  }
+  .recent-desc {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .recent-arrow {
+    color: theme('colors.rose.300');
+    font-size: 1.2rem;
+    transition: transform 220ms ease;
+  }
+  .recent-row:hover .recent-arrow { transform: translateX(3px); }
+
+  /* ---------------- 引文 ---------------- */
+  .bigquote {
+    position: relative;
+    margin: 0;
+    padding: 2.5rem 1rem 2.5rem;
+    text-align: center;
+    border: 0;
+  }
+  .bigquote-mark {
+    position: absolute;
+    top: -1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 7rem;
+    line-height: 1;
+    color: theme('colors.rose.200');
+    opacity: 0.7;
+  }
+  .bigquote p {
+    margin: 0 auto;
+    max-width: 38ch;
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(1.3rem, 2vw, 1.65rem);
+    font-weight: 500;
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    color: theme('colors.ink.800');
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getLocaleFromUrl, getDict } from '@/i18n/utils';
+
+const locale = getLocaleFromUrl(Astro.url);
+const dict = getDict(locale);
+const home = locale === 'en' ? '/en' : '/';
+const homeLabel = locale === 'en' ? 'Go home' : '回到首页';
+---
+
+<BaseLayout title={`404 · ${dict.siteName}`} description={dict.pageNotFoundDesc}>
+  <section class="container-narrow text-center pt-20 pb-28">
+    <PageHeader
+      eyebrow="404"
+      title={dict.pageNotFound}
+      description={dict.pageNotFoundDesc}
+      align="center"
+    />
+    <a href={withBase(home)} class="btn btn-primary">{homeLabel}</a>
+  </section>
+</BaseLayout>

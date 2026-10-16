@@ -1,0 +1,167 @@
+---
+import { hashToUnit, getPalette, getAccentColor } from '@/utils/hash';
+
+interface Props {
+  /** 1-5，每张图内容略不同 */
+  index: number;
+  /** 用于稳定配色 */
+  slug: string;
+  /** App 中文/英文名 */
+  appTitle: string;
+  /** App 的 emoji icon */
+  icon: string;
+  /** 系列（可选） */
+  series?: string;
+  accentColor?: string;
+  /** 显式提供图片路径时优先 */
+  src?: string;
+}
+
+const { index, slug, appTitle, icon, series, accentColor, src } = Astro.props;
+const [bgA, bgB, accent] = getPalette(series);
+const useAccent = accentColor ?? accent;
+
+const seed = hashToUnit(`${slug}-${index}`);
+const captionZh = ['主界面', '使用中', '回顾'];
+const captionEn = ['Home', 'In use', 'Reflection'];
+---
+
+<div class="preset">
+  {
+    src ? (
+      <img src={src} alt={`${appTitle} 截图 ${index}`} class="preset-img" loading="lazy" />
+    ) : (
+      <svg viewBox="0 0 300 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id={`gp-bg-${slug}-${index}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color={bgA} />
+            <stop offset="100%" stop-color={bgB} />
+          </linearGradient>
+        </defs>
+
+        {/* 背景 */}
+        <rect width="300" height="600" fill={`url(#gp-bg-${slug}-${index})`} />
+
+        {/* 状态栏 */}
+        <g fill={useAccent} opacity="0.6">
+          <circle cx="30" cy="32" r="3" />
+          <circle cx="44" cy="32" r="3" />
+          <rect x="240" y="28" width="20" height="8" rx="2" opacity="0.5" />
+        </g>
+
+        {index === 1 && (
+          <g>
+            {/* 主界面：大 icon + 标题 + CTA */}
+            <text x="150" y="260" text-anchor="middle" font-size="86" font-family="Apple Color Emoji, sans-serif">{icon}</text>
+            <text x="150" y="340" text-anchor="middle" font-size="22" font-family="Noto Serif SC, serif" fill="#2F2418" font-weight="600">{appTitle}</text>
+            <text x="150" y="370" text-anchor="middle" font-size="12" font-family="Inter, sans-serif" fill="#5C4A3E" opacity="0.75">今日的小练习</text>
+            <rect x="60" y="430" width="180" height="48" rx="24" fill={useAccent} />
+            <text x="150" y="459" text-anchor="middle" font-size="14" font-family="Inter, sans-serif" fill="white" font-weight="500">开始</text>
+            <text x="150" y="540" text-anchor="middle" font-size="11" font-family="Inter, sans-serif" fill="#5C4A3E" opacity="0.5">轻触进入</text>
+          </g>
+        )}
+
+        {index === 2 && (
+          <g>
+            {/* 使用中：标题 + 列表 */}
+            <text x="150" y="100" text-anchor="middle" font-size="20" font-family="Noto Serif SC, serif" fill="#2F2418" font-weight="600">{appTitle}</text>
+            <text x="150" y="125" text-anchor="middle" font-size="11" font-family="Inter, sans-serif" fill="#5C4A3E" opacity="0.7">最近 7 天</text>
+            {[0, 1, 2, 3, 4].map((row) => (
+              <g transform={`translate(40 ${180 + row * 56})`}>
+                <rect width="220" height="44" rx="12" fill="white" opacity="0.55" />
+                <circle cx="22" cy="22" r="8" fill={useAccent} opacity={0.4 + seed * 0.4} />
+                <rect x="42" y="14" width="120" height="6" rx="3" fill="#5C4A3E" opacity="0.45" />
+                <rect x="42" y="26" width="80" height="5" rx="2" fill="#5C4A3E" opacity="0.25" />
+              </g>
+            ))}
+          </g>
+        )}
+
+        {index === 3 && (
+          <g>
+            {/* 回顾：圆形进度 + 文案 */}
+            <circle cx="150" cy="240" r="80" fill="none" stroke="white" stroke-width="6" opacity="0.5" />
+            <circle
+              cx="150"
+              cy="240"
+              r="80"
+              fill="none"
+              stroke={useAccent}
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-dasharray={`${2 * Math.PI * 80 * (0.5 + seed * 0.4)} ${2 * Math.PI * 80}`}
+              transform="rotate(-90 150 240)"
+            />
+            <text x="150" y="248" text-anchor="middle" font-size="28" font-family="Inter, sans-serif" fill="#2F2418" font-weight="600">
+              {Math.round((0.5 + seed * 0.4) * 100)}%
+            </text>
+            <text x="150" y="380" text-anchor="middle" font-size="16" font-family="Noto Serif SC, serif" fill="#2F2418">本周完成</text>
+            <text x="150" y="410" text-anchor="middle" font-size="11" font-family="Inter, sans-serif" fill="#5C4A3E" opacity="0.7">再做 2 次就集齐一周期</text>
+            <rect x="60" y="460" width="180" height="44" rx="22" fill="white" opacity="0.6" />
+            <text x="150" y="487" text-anchor="middle" font-size="13" font-family="Inter, sans-serif" fill="#2F2418">查看趋势</text>
+          </g>
+        )}
+
+        {/* Home indicator */}
+        <rect x="120" y="572" width="60" height="4" rx="2" fill={useAccent} opacity="0.4" />
+      </svg>
+    )
+  }
+  <div class="preset-caption">
+    <span class="preset-index">{String(index).padStart(2, '0')}</span>
+    <span data-zh={captionZh[index - 1]} data-en={captionEn[index - 1]}></span>
+  </div>
+</div>
+
+<script>
+  // 根据当前语言环境更新占位截图标签
+  const html = document.documentElement;
+  const isEn = html.lang.startsWith('en');
+  document.querySelectorAll('[data-zh][data-en]').forEach((el) => {
+    const span = el as HTMLElement;
+    span.textContent = isEn ? span.dataset.en || '' : span.dataset.zh || '';
+  });
+</script>
+
+<style>
+  .preset {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 19.5;
+    background: theme('colors.cream.100');
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(74, 60, 46, 0.2);
+    border: 1px solid theme('colors.cream.200');
+  }
+  .preset svg,
+  .preset .preset-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .preset-img {
+    object-fit: cover;
+  }
+  .preset-caption {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(6px);
+    padding: 0.3rem 0.7rem;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    color: theme('colors.ink.800');
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .preset-index {
+    font-family: 'Inter', monospace;
+    color: theme('colors.rose.300');
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getDict } from '@/i18n/utils';
+import { developerName, appPrivacyPolicies, supportIssuesUrl } from '@/data/legal';
+import { withBase } from '@/utils/paths';
+
+const dict = getDict('en');
+---
+
+<BaseLayout title={`Privacy Policy · ${dict.siteName}`} description="Privacy information for the Atrium website and the Gleam app series.">
+  <section class="container-prose pt-12 pb-24">
+    <PageHeader eyebrow="Privacy" title="Privacy Policy" description="Last updated: October 16, 2026" />
+
+    <div class="prose-warm">
+      <h2>1. This website</h2>
+      <p>Atrium is a static website hosted on GitHub Pages.</p>
+      <ul>
+        <li><strong>We have no accounts, no forms, no analytics and no ad-tracking scripts</strong>, and we set no tracking cookies.</li>
+        <li>Your light/dark theme choice is stored only in your browser's localStorage and is never sent to us.</li>
+        <li>Our host, GitHub, may keep access logs (such as IP addresses) for security and operations — see the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>.</li>
+        <li>Fonts load from Google Fonts, so your browser makes requests to Google — see the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</li>
+        <li>App screenshots and icons come from the public App Store pages and are served from this site; viewing them makes no third-party image requests.</li>
+        <li>"Download on the App Store" takes you to Apple's website, where Apple's privacy policy applies.</li>
+      </ul>
+
+      <h2>2. Gleam series apps</h2>
+      <p>
+        The developer of the Gleam apps on the App Store is <strong>{developerName}</strong>. According to the developer's App Store privacy labels, each app below is
+        <strong>"Data Not Collected."</strong> The labels are self-reported by the developer and have not been verified by Apple.
+      </p>
+      <ul>
+        {appPrivacyPolicies.map((p) => (
+          <li>
+            <a href={withBase(`/en/apps/${p.slug}`)}>{p.en}</a> ·
+            <a href={p.url} target="_blank" rel="noopener">official privacy policy</a>
+          </li>
+        ))}
+      </ul>
+      <p>Each app's official privacy policy is the authoritative source. For example, When Will It Come uses calendar access only to read local events and does not upload, store or share them.</p>
+
+      <h2>3. Contact</h2>
+      <p>Questions about privacy? Use the channels on the <a href={withBase('/en/support')}>Support page</a> (<a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a>).</p>
+
+      <h2>4. Changes</h2>
+      <p>If this policy changes, we will update the "Last updated" date at the top of this page.</p>
+    </div>
+  </section>
+</BaseLayout>

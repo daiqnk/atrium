@@ -1,0 +1,46 @@
+---
+/**
+ * 关键词标签 —— 只承载内容自带的自由文本（如「焦虑」「sleep」），
+ * 不做任何翻译与改写：内容里写什么就显示什么。
+ *
+ * 与 Badge 的分工：
+ *   Badge = 系统语义（状态 / 系列 / 精选），文案受控
+ *   Tag   = 内容标签，文案自由
+ */
+
+interface Props {
+  text: string;
+  size?: 'sm' | 'md';
+}
+
+const { text, size = 'sm' } = Astro.props;
+---
+
+{text && (
+  <span class="tag" data-size={size}>#{text}</span>
+)}
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0.45rem;
+    background: theme('colors.cream.50');
+    color: theme('colors.ink.700');
+    border: 1px solid theme('colors.cream.200');
+    line-height: 1;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  .tag[data-size='sm'] {
+    font-size: 0.72rem;
+    padding: 0.26rem 0.5rem;
+  }
+  .tag[data-size='md'] {
+    font-size: 0.78rem;
+    padding: 0.32rem 0.62rem;
+  }
+</style>

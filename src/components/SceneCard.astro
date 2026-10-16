@@ -1,0 +1,97 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import type { Scene } from '@/data/scenes';
+import { SCENE_TONES } from '@/data/scenes';
+
+/**
+ * 需求场景卡片 —— Headspace 式「按状态组织入口」的载体。
+ *
+ * 有机形状（blob 圆角）+ 各自情绪色 + 悬浮时轻微放大。
+ * 链接到 /scenes/<slug>（中）或 /en/scenes/<slug>（英）。
+ */
+
+interface Props {
+  scene: Scene;
+  locale: 'zh' | 'en';
+}
+
+const { scene, locale } = Astro.props;
+const tone = SCENE_TONES[scene.tone];
+const href = locale === 'en' ? `/en/scenes/${scene.slug}` : `/scenes/${scene.slug}`;
+const name = locale === 'en' ? scene.en : scene.zh;
+const line = locale === 'en' ? scene.enLine : scene.zhLine;
+---
+
+<a href={withBase(href)} class="scene-card" data-tone={scene.tone} style={`--scene-bg:${tone.bg};--scene-accent:${tone.accent};--scene-glow:${tone.glow};`}>
+  <span class="scene-icon" aria-hidden="true">{scene.icon}</span>
+  <span class="scene-name">{name}</span>
+  <span class="scene-line">{line}</span>
+  <span class="scene-arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .scene-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.75rem 1.5rem 1.6rem;
+    text-decoration: none;
+    color: inherit;
+    background: var(--scene-bg);
+    border: 1px solid color-mix(in srgb, var(--scene-accent) 32%, transparent);
+    border-radius: theme('borderRadius.blob');
+    overflow: hidden;
+    transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 340ms ease;
+    /* 弥散光晕底 */
+    box-shadow: 0 8px 24px -14px var(--scene-glow);
+  }
+  .scene-card:hover {
+    transform: translateY(-5px) scale(1.015);
+    box-shadow: 0 22px 48px -20px var(--scene-glow);
+  }
+  .scene-icon {
+    font-size: 1.9rem;
+    line-height: 1;
+    transition: transform 340ms ease;
+    display: inline-block;
+  }
+  .scene-card:hover .scene-icon {
+    transform: scale(1.12) rotate(-4deg);
+  }
+  .scene-name {
+    font-family: 'Noto Serif SC', 'Noto Serif', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: theme('colors.ink.900');
+  }
+  .scene-line {
+    color: theme('colors.ink.700');
+    font-size: 0.9rem;
+    line-height: 1.6;
+    opacity: 0.82;
+  }
+  .scene-arrow {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.4rem;
+    color: var(--scene-accent);
+    font-size: 1.2rem;
+    opacity: 0.7;
+    transition: transform 240ms ease, opacity 240ms ease;
+  }
+  .scene-card:hover .scene-arrow {
+    transform: translateX(3px);
+    opacity: 1;
+  }
+  /* 顶部一抹装饰色带，随 tone 变 */
+  .scene-card::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--scene-accent), transparent 70%);
+    opacity: 0.5;
+  }
+</style>

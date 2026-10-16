@@ -1,0 +1,71 @@
+---
+import { getLocaleFromUrl } from '@/i18n/utils';
+import { platformLabel } from '@/i18n/labels';
+
+/**
+ * 元信息小标 —— 承载「平台 / 日期 / 时长 / 阅读时间」这类附属信息。
+ *
+ * 用法：
+ *   <Chip kind="platform" platform="ios" />
+ *   <Chip kind="date" text={formatDate(publishedAt, locale)} />
+ *   <Chip kind="meta" text="5 分钟" />
+ *
+ * 比 Badge 更轻（无圆点、无强配色），视觉层级压在内容之下。
+ */
+
+interface Props {
+  kind: 'platform' | 'date' | 'meta';
+  platform?: string;
+  text?: string;
+  size?: 'sm' | 'md';
+}
+
+const { kind, platform, text, size = 'sm' } = Astro.props;
+
+const locale = getLocaleFromUrl(Astro.url);
+
+const label =
+  kind === 'platform' ? platformLabel(platform ?? '', locale) : (text ?? '');
+---
+
+{label && (
+  <span class="chip" data-kind={kind} data-size={size}>
+    <slot />
+    {label}
+  </span>
+)}
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    background: theme('colors.cream.100');
+    color: theme('colors.ink.700');
+    border: 1px solid theme('colors.cream.200');
+    line-height: 1;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip[data-size='sm'] {
+    font-size: 0.72rem;
+    padding: 0.26rem 0.55rem;
+  }
+  .chip[data-size='md'] {
+    font-size: 0.78rem;
+    padding: 0.32rem 0.7rem;
+  }
+  /* 平台名更像标识：稍重的描边与字重 */
+  .chip[data-kind='platform'] {
+    background: var(--surface);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  /* 日期退到最弱，避免和标题抢注意力 */
+  .chip[data-kind='date'] {
+    background: transparent;
+    border-color: transparent;
+    opacity: 0.75;
+  }
+</style>

@@ -1,0 +1,20 @@
+---
+/**
+ * 结构化数据（JSON-LD）出口。
+ *
+ * 为什么要它：心理学内容站 + 一批 App Listing，搜索结果里能拿到的
+ * 富媒体展示（星级、面包屑、文章日期、App 平台信息）全部依赖这个。
+ *
+ * 用法：<JsonLd data={{ '@type': 'Article', headline: '…' }} />
+ */
+interface Props {
+  data: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { data } = Astro.props;
+
+// 转义 "<"，防止内容里出现 "</script>" 提前闭合脚本块
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" is:inline set:html={json} />

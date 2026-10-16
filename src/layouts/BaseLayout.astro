@@ -1,0 +1,147 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import '@/styles/global.css';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import JsonLd from '@/components/ui/JsonLd.astro';
+import { getLocaleFromUrl, getDict } from '@/i18n/utils';
+import type { Locale } from '@/i18n/dictionaries';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** og: true 是当前页面想作为 Hero 大图时的备选（默认 false） */
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+  /** 页面级结构化数据，会和站点级的 WebSite/Organization 一起输出 */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** 覆盖 <meta property="og:type">，文章页传 article */
+  ogType?: string;
+  /** 覆盖 <meta property="article:published_time"> 等（暂未启用，预留） */
+  publishedAt?: Date;
+}
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const dict = getDict(locale);
+
+const {
+  title = `${dict.siteName} · ${dict.tagline}`,
+  description = dict.heroSubtitle,
+  hideHeader = false,
+  hideFooter = false,
+  jsonLd,
+  ogType = 'website',
+} = Astro.props;
+
+const logicalPath = stripBase(Astro.url.pathname);
+const isEnPath = logicalPath === '/en' || logicalPath.startsWith('/en/');
+const canonical = absUrl(logicalPath, Astro.site, Astro.url.origin);
+const enCanonical = isEnPath
+  ? canonical
+  : absUrl(`/en${logicalPath === '/' ? '' : logicalPath}`, Astro.site, Astro.url.origin);
+const zhCanonical = isEnPath
+  ? absUrl(logicalPath.replace(/^\/en\/?/, '/'), Astro.site, Astro.url.origin)
+  : canonical;
+
+/**
+ * 字体策略（性能敏感）
+ * ------------------------------------------------------------------
+ * 1) 字重只保留实际用到的：正文 400 / 次强调 500 / 强调与标题 600 / h1 700。
+ *    原来请求了 21 个 @font-face，实际只用到 3 个字重。
+ * 2) 字体样式表改成异步加载（media="print" + onload 切回 all）。
+ *    原因：这支 CSS 展开后约 478 KB（Noto Serif SC 一个字族就被切成
+ *    上百个 unicode-range 分片），同步加载会直接卡住首屏渲染。
+ * 3) font-display=swap 已包含在 URL 里，字体到位前用系统字体出字。
+ */
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap';
+
+/** 社交分享图：放在 public/og-cover.png，1200×630 */
+const ogImage = absUrl('/og-cover.png', Astro.site, Astro.url.origin);
+
+const siteOrigin = absUrl('/', Astro.site, Astro.url.origin).replace(/\/$/, '');
+
+/**
+ * 站点级结构化数据：告诉搜索引擎这是一个双语站点、以及站点背后的组织。
+ * 页面级的 jsonLd 由各页自己传（如 App 页传 SoftwareApplication）。
+ */
+const siteJsonLd: Record<string, unknown>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: dict.siteName,
+    alternateName: dict.siteName,
+    description: dict.heroSubtitle,
+    url: `${siteOrigin}/`,
+    inLanguage: ['zh-CN', 'en'],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: dict.siteName,
+    url: `${siteOrigin}/`,
+    description: dict.tagline,
+  },
+];
+
+const allJsonLd = jsonLd ? [...siteJsonLd, ...(Array.isArray(jsonLd) ? jsonLd : [jsonLd])] : siteJsonLd;
+---
+
+<!doctype html>
+<html lang={locale === 'en' ? 'en' : 'zh-CN'}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+    {/* 主题初始化：在首屏渲染前写入 data-theme，避免深色用户看到白屏闪烁 */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="zh-CN" href={zhCanonical} />
+    <link rel="alternate" hreflang="en-US" href={enCanonical} />
+    {/* x-default 告诉搜索引擎"语言不限时给哪个版本"，通常指向默认语言（中文） */}
+    <link rel="alternate" hreflang="x-default" href={zhCanonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={dict.siteName} />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'zh_CN'} />
+    <meta property="og:locale:alternate" content={locale === 'en' ? 'zh_CN' : 'en_US'} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <meta name="theme-color" content="#FAF7F2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* 异步加载字体样式表：不阻塞首屏渲染 */}
+    <link rel="preload" as="style" href={fontsHref} />
+    <link rel="stylesheet" href={fontsHref} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen bg-cream-50 text-ink-800">
+    <JsonLd data={allJsonLd} />
+    {!hideHeader && <Header />}
+    <main id="main">
+      <slot />
+    </main>
+    {!hideFooter && <Footer />}
+  </body>
+</html>

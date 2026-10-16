@@ -1,0 +1,59 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getLocaleFromUrl, getAlternateUrl, getA11y } from '@/i18n/utils';
+import { languages } from '@/i18n/dictionaries';
+
+interface Props {
+  /** 客户端即时切换：使用 anchor + onClick 拦截跳转 */
+  variant?: 'pill' | 'link';
+}
+
+const { variant = 'pill' } = Astro.props;
+const url = Astro.url;
+const current = getLocaleFromUrl(url);
+const targetLocale = current === 'zh' ? 'en' : 'zh';
+const targetHref = getAlternateUrl(url.pathname, targetLocale);
+const targetLabel = languages[targetLocale].label;
+// 措辞跟随当前语言：中文页写"切换到中文"，英文页写"Switch to English"
+const switchLabel =
+  targetLocale === 'en' ? getA11y(current).switchToEn : getA11y(current).switchToZh;
+---
+
+<a
+  href={withBase(targetHref)}
+  class:list={[
+    'lang-switcher inline-flex items-center gap-1.5',
+    variant === 'pill' &&
+      'rounded-full border border-cream-200 bg-white/70 px-3 py-1.5 text-sm hover:bg-rose-50 hover:border-rose-100',
+    variant === 'link' && 'text-ink-700 hover:text-rose-300',
+  ]}
+  aria-label={switchLabel}
+  data-lang-switch
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="M2 12h20"></path>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+  </svg>
+  <span>{targetLabel}</span>
+</a>
+
+<style>
+  .lang-switcher {
+    transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  .lang-switcher:hover {
+    transform: translateY(-1px);
+  }
+</style>

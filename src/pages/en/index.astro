@@ -1,0 +1,408 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroBackdrop from '@/components/HeroBackdrop.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import SceneCard from '@/components/SceneCard.astro';
+import BreathingOrb from '@/components/BreathingOrb.astro';
+import AppCard from '@/components/AppCard.astro';
+import Badge from '@/components/ui/Badge.astro';
+import { getDict, bareSlug } from '@/i18n/utils';
+import { scenes } from '@/data/scenes';
+
+const locale = 'en' as const;
+const dict = getDict(locale);
+
+const apps = await getCollection('apps', ({ data }) => data.locale === 'en');
+const knowledge = await getCollection('knowledge', ({ data }) => data.locale === 'en');
+const wellness = await getCollection('wellness', ({ data }) => data.locale === 'en');
+
+const liveApps = apps.filter((a) => a.data.status === 'live');
+
+const recent = [
+  ...liveApps.map((a) => ({
+    kind: 'app' as const,
+    slug: bareSlug(a.slug),
+    title: a.data.title,
+    category: a.data.series ?? 'App',
+    description: a.data.description,
+    publishedAt: a.data.publishedAt,
+  })),
+  ...knowledge.map((a) => ({
+    kind: 'knowledge' as const,
+    slug: bareSlug(a.slug),
+    title: a.data.title,
+    category: a.data.category,
+    description: a.data.description,
+    publishedAt: a.data.publishedAt,
+    readingTime: a.data.readingTime,
+  })),
+  ...wellness.map((a) => ({
+    kind: 'wellness' as const,
+    slug: bareSlug(a.slug),
+    title: a.data.title,
+    category: a.data.category,
+    description: a.data.description,
+    publishedAt: a.data.publishedAt,
+    duration: a.data.duration,
+    difficulty: a.data.difficulty,
+  })),
+]
+  .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf())
+  .slice(0, 4);
+---
+
+<BaseLayout>
+  <section class="hero aurora">
+    <HeroBackdrop />
+    <div class="hero-pattern" aria-hidden="true"></div>
+    <div class="container-narrow hero-inner">
+      <RevealOnScroll y={20}>
+        <p class="hero-eyebrow">
+          <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+          {dict.tagline}
+        </p>
+      </RevealOnScroll>
+
+      <RevealOnScroll y={24} delay={120}>
+        <h1 class="hero-title">
+          What kind of headspace<br /><span class="text-gradient">are you in?</span>
+          <span class="hero-title-en" aria-hidden="true">此刻的你，想要哪种状态？</span>
+        </h1>
+      </RevealOnScroll>
+
+      <RevealOnScroll y={18} delay={220}>
+        <p class="hero-subtitle">Anxiety, stress, sleep, focus, self-acceptance — come in by how you actually feel, and find the right tools, knowledge and practice.</p>
+      </RevealOnScroll>
+
+      <RevealOnScroll y={14} delay={320}>
+        <div class="hero-ctas">
+          <a href={withBase('/en/scenes')} class="btn btn-primary btn-lg">Explore scenes</a>
+          <a href={withBase('/en/apps')} class="btn btn-ghost">{dict.ctaApps}</a>
+        </div>
+      </RevealOnScroll>
+    </div>
+  </section>
+
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <PageHeader
+        eyebrow="Scenes"
+        title="By need, not by menu"
+        description="Five entrances for five common states. Step in and find everything that belongs together."
+        size="lg"
+      />
+    </RevealOnScroll>
+
+    <div class="scene-grid">
+      {scenes.map((scene, i) => (
+        <RevealOnScroll y={20} delay={i * 90}>
+          <SceneCard scene={scene} locale={locale} />
+        </RevealOnScroll>
+      ))}
+    </div>
+  </section>
+
+  <section class="breathe-section">
+    <div class="container-narrow">
+      <RevealOnScroll y={18}>
+        <BreathingOrb locale={locale} />
+      </RevealOnScroll>
+    </div>
+  </section>
+
+  {liveApps.length > 0 && (
+    <section class="container-narrow section-air">
+      <RevealOnScroll>
+        <PageHeader
+          eyebrow="Featured apps"
+          title="Psychology, packed into small tools"
+          description="Small iOS apps for relaxation, awareness and focus — a few minutes at a time."
+          size="lg"
+        />
+      </RevealOnScroll>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {liveApps.slice(0, 3).map((entry, i) => (
+          <RevealOnScroll y={18} delay={i * 120}>
+            <AppCard
+              slug={entry.slug}
+              title={entry.data.title}
+              subtitle={entry.data.subtitle}
+              description={entry.data.description}
+              icon={entry.data.icon}
+              category={entry.data.category}
+              series={entry.data.series}
+              tags={entry.data.tags}
+              status={entry.data.status}
+              platforms={entry.data.platforms}
+              featured={entry.data.featured}
+              order={entry.data.order}
+              cover={entry.data.cover}
+              iconImage={entry.data.iconImage}
+              accentColor={entry.data.accentColor}
+            />
+          </RevealOnScroll>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <div class="trust">
+        <div class="trust-item">
+          <span class="trust-num">{apps.length}</span>
+          <span class="trust-label" set:html={`apps`} />
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">{apps.filter((a) => a.data.status === 'live' && a.data.links?.appStore).length}</span>
+          <span class="trust-label" set:html={`on the App Store`} />
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">{knowledge.length}</span>
+          <span class="trust-label" set:html={`knowledge articles`} />
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-item">
+          <span class="trust-num">0</span>
+          <span class="trust-label" set:html={`data types collected<br/>(per App Store privacy labels)`} />
+        </div>
+      </div>
+    </RevealOnScroll>
+  </section>
+
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <PageHeader
+        eyebrow="What's new"
+        title="Recently updated"
+        description="A chronological feed across apps, knowledge and practices."
+      />
+    </RevealOnScroll>
+
+    <RevealOnScroll y={16} delay={120}>
+      <div class="recent-list">
+        {recent.map((item) => (
+          <a class="recent-row" href={withBase(
+            item.kind === 'app'
+              ? `/en/apps/${item.slug}`
+              : item.kind === 'knowledge'
+                ? `/en/knowledge/${item.slug}`
+                : `/en/wellness/${item.slug}`)}>
+            <Badge kind="series" series={item.kind === 'app' ? 'App' : item.category} />
+            <div class="recent-meta">
+              <h4 class="recent-title">{item.title}</h4>
+              <p class="recent-desc">{item.description}</p>
+            </div>
+            <span class="recent-arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </RevealOnScroll>
+  </section>
+
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <blockquote class="bigquote">
+        <span class="bigquote-mark" aria-hidden="true">“</span>
+        <p>The most useful parts of psychology rarely live in papers — they live in the 3 minutes we are willing to turn a finding into a small action.</p>
+      </blockquote>
+    </RevealOnScroll>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { position: relative; overflow: hidden; isolation: isolate; }
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-pattern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(74, 60, 46, 0.06) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 75%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 75%);
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 1.5rem 6rem;
+    text-align: center;
+  }
+  @media (min-width: 768px) { .hero-inner { padding: 7.5rem 1.5rem 9rem; } }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.5rem;
+    padding: 0.42rem 1rem;
+    border-radius: 9999px;
+    background: var(--glass);
+    border: 1px solid theme('colors.cream.200');
+    color: theme('colors.ink.700');
+    font-size: 0.85rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 12px -6px var(--shadow);
+  }
+  .hero-eyebrow-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: theme('colors.sage.300');
+    box-shadow: 0 0 0 4px rgba(122, 142, 106, 0.15);
+  }
+  .hero-title {
+    margin: 0 auto 1.5rem;
+    max-width: 22ch;
+    font-size: clamp(2.4rem, 5.6vw, 4.4rem);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+    color: theme('colors.ink.900');
+  }
+  .hero-title-en {
+    display: block;
+    margin-top: 1rem;
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(0.85rem, 1.3vw, 1.05rem);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: theme('colors.ink.700');
+    opacity: 0.45;
+  }
+  .hero-subtitle {
+    margin: 0 auto 2.5rem;
+    max-width: 56ch;
+    font-size: clamp(1.05rem, 1.4vw, 1.18rem);
+    color: theme('colors.ink.700');
+    line-height: 1.75;
+  }
+  .hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+  .btn-lg {
+    padding: 0.95rem 1.85rem;
+    font-size: 1rem;
+    box-shadow: 0 14px 30px -12px rgba(47, 36, 24, 0.35);
+  }
+  .scene-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+  .breathe-section {
+    position: relative;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(196, 191, 224, 0.14), transparent 60%),
+      linear-gradient(180deg, theme('colors.cream.50'), theme('colors.cream.100'));
+    border-block: 1px solid theme('colors.cream.200');
+  }
+  .trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    padding: 2.5rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid theme('colors.cream.200');
+    border-radius: theme('borderRadius.soft');
+    box-shadow: 0 1px 2px -1px var(--shadow), 0 16px 40px -28px var(--shadow-strong);
+  }
+  .trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 6rem;
+  }
+  .trust-num {
+    font-family: 'Noto Serif', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: theme('colors.ink.900');
+    line-height: 1;
+  }
+  .trust-label { color: theme('colors.ink.700'); font-size: 0.85rem; opacity: 0.8; }
+  .trust-divider { width: 1px; height: 2.5rem; background: theme('colors.cream.200'); }
+  @media (max-width: 640px) {
+    .trust { gap: 1.5rem; }
+    .trust-divider { display: none; }
+  }
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-top: 1px solid theme('colors.cream.200');
+  }
+  .recent-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.15rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid theme('colors.cream.200');
+    transition: background 220ms ease, transform 220ms ease;
+  }
+  .recent-row:hover { background: theme('colors.rose.50'); transform: translateX(2px); }
+  .recent-meta { min-width: 0; }
+  .recent-title {
+    margin: 0 0 0.2rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: theme('colors.ink.900');
+  }
+  .recent-desc {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .recent-arrow { color: theme('colors.rose.300'); font-size: 1.2rem; transition: transform 220ms ease; }
+  .recent-row:hover .recent-arrow { transform: translateX(3px); }
+  .bigquote {
+    position: relative;
+    margin: 0;
+    padding: 2.5rem 1rem 2.5rem;
+    text-align: center;
+    border: 0;
+  }
+  .bigquote-mark {
+    position: absolute;
+    top: -1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Noto Serif', serif;
+    font-size: 7rem;
+    line-height: 1;
+    color: theme('colors.rose.200');
+    opacity: 0.7;
+  }
+  .bigquote p {
+    margin: 0 auto;
+    max-width: 38ch;
+    font-family: 'Noto Serif', serif;
+    font-size: clamp(1.3rem, 2vw, 1.65rem);
+    font-weight: 500;
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    color: theme('colors.ink.800');
+  }
+</style>

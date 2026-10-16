@@ -1,0 +1,371 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AppCover from '@/components/AppCover.astro';
+import GallerySlot from '@/components/GallerySlot.astro';
+import Badge from '@/components/ui/Badge.astro';
+import Tag from '@/components/ui/Tag.astro';
+import Chip from '@/components/ui/Chip.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import { getDict } from '@/i18n/utils';
+import { formatDate, word } from '@/i18n/labels';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('apps', ({ data }) => data.locale === 'en');
+  return entries.map((entry) => ({
+    params: { slug: entry.slug.split('/').pop() ?? entry.slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'apps'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const dict = getDict('en');
+const locale = 'en' as const;
+
+const key = entry.slug.split('/').pop() ?? entry.slug;
+const gallery = entry.data.gallery;
+const pageUrl = absUrl(`/en/apps/${key}`, Astro.site, Astro.url.origin);
+
+const OS_LABEL: Record<string, string> = { ios: 'iOS', android: 'Android', web: 'Web' };
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: entry.data.title,
+  description: entry.data.description,
+  url: pageUrl,
+  inLanguage: 'en',
+  applicationCategory: 'HealthApplication',
+  operatingSystem: entry.data.platforms.map((p) => OS_LABEL[p] ?? p).join(', '),
+  ...(entry.data.features.length > 0 ? { featureList: entry.data.features } : {}),
+  ...(entry.data.links?.appStore && entry.data.price?.us
+    ? {
+        downloadUrl: entry.data.links.appStore,
+        offers: {
+          '@type': 'Offer',
+          price: entry.data.price.us.replace(/[^0-9.]/g, ''),
+          priceCurrency: 'USD',
+          url: entry.data.links.appStore,
+        },
+      }
+    : {}),
+};
+---
+
+<BaseLayout
+  title={`${entry.data.title} · ${dict.siteName}`}
+  description={entry.data.description}
+  jsonLd={jsonLd}
+  ogType="website"
+>
+  <article class="container-prose pt-10 pb-24">
+    <a href={withBase('/en/apps')} class="back-link" data-no-lang-switch>
+      <span class="back-arrow" aria-hidden="true">←</span> {dict.backToList}
+    </a>
+
+    <RevealOnScroll as="section" y={20}>
+      <section class="app-hero">
+        <div class="app-hero-cover">
+          <AppCover
+            slug={key}
+            icon={entry.data.icon}
+            title={entry.data.title}
+            series={entry.data.series}
+            accentColor={entry.data.accentColor}
+            aspect={2}
+            src={entry.data.cover}
+            iconImage={entry.data.iconImage}
+          />
+          <span class="app-hero-shine" aria-hidden="true"></span>
+        </div>
+
+        <div class="app-hero-meta">
+          <div class="app-hero-badges">
+            <Badge kind="series" series={entry.data.series} text={entry.data.series ?? entry.data.category} />
+            <Badge kind="status" status={entry.data.status} />
+            {entry.data.featured && <Badge kind="featured" />}
+          </div>
+
+          <h1 class="app-hero-title">{entry.data.title}</h1>
+          {entry.data.subtitle && <p class="app-hero-subtitle">{entry.data.subtitle}</p>}
+          <p class="app-hero-desc">{entry.data.description}</p>
+
+          {entry.data.tags.length > 0 && (
+            <div class="app-hero-tags">
+              {entry.data.tags.map((t) => <Tag text={t} />)}
+            </div>
+          )}
+
+          <div class="app-links">
+            {entry.data.links?.appStore ? (
+              <a href={entry.data.links.appStore} class="btn btn-primary btn-lg" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.86-.76-1.47.02-2.83.86-3.59 2.17-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.3-3.51zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.65-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg>
+                Download on the App Store
+              </a>
+            ) : (
+              <span class="store-pending">Store link coming soon</span>
+            )}
+          </div>
+          {entry.data.price && (entry.data.price.us || entry.data.price.cn) && (
+            <p class="app-price">
+              Price: {[entry.data.price.us && `US ${entry.data.price.us}`, entry.data.price.cn && `China mainland ${entry.data.price.cn}`].filter(Boolean).join(' · ')}
+              {' '}(one-time purchase; the App Store shows the current price)
+            </p>
+          )}
+          {entry.data.storeNote && <p class="app-store-note">{entry.data.storeNote}</p>}
+        </div>
+      </section>
+    </RevealOnScroll>
+
+    <RevealOnScroll as="section" y={18} delay={120}>
+      <section class="app-gallery">
+        <h2 class="section-title"><span class="section-rule" aria-hidden="true"></span>Preview</h2>
+        <div class="gallery-grid">
+          {
+            gallery.length > 0
+              ? gallery.map((src) => (
+                  <div class="gallery-frame">
+                    <img src={withBase(src)} alt={`${entry.data.title} screenshot`} class="gallery-img" loading="lazy" />
+                  </div>
+                ))
+              : [1, 2, 3].map((i) => (
+                  <GallerySlot
+                    index={i}
+                    slug={key}
+                    appTitle={entry.data.title}
+                    icon={entry.data.icon}
+                    series={entry.data.series}
+                    accentColor={entry.data.accentColor}
+                  />
+                ))
+          }
+        </div>
+      </section>
+    </RevealOnScroll>
+
+    {
+      entry.data.features.length > 0 && (
+        <RevealOnScroll as="section" y={18} delay={120}>
+          <section class="app-features">
+            <h2 class="section-title"><span class="section-rule" aria-hidden="true"></span>Key features</h2>
+            <ul class="features-list">
+              {entry.data.features.map((f) => (
+                <li>
+                  <span class="feature-bullet" aria-hidden="true">✦</span>
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </RevealOnScroll>
+      )
+    }
+
+    <RevealOnScroll>
+      <div class="prose-warm">
+        <Content />
+      </div>
+    </RevealOnScroll>
+
+    <div class="app-footer">
+      <div class="app-platforms">
+        <span class="meta-label">{word('platform', locale)}</span>
+        {entry.data.platforms.map((p) => <Chip kind="platform" platform={p} />)}
+      </div>
+      <div class="app-updated">
+        {dict.updated} · {formatDate(entry.data.publishedAt, locale)}
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .app-links .btn { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .store-pending { display: inline-block; font-size: 0.9rem; color: theme('colors.ink.700'); border: 1px dashed theme('colors.cream.200'); border-radius: 999px; padding: 0.45rem 1rem; }
+  .app-price { margin-top: 0.75rem; font-size: 0.88rem; color: theme('colors.ink.700'); }
+  .app-store-note { margin-top: 0.35rem; font-size: 0.82rem; color: theme('colors.ink.700'); opacity: 0.85; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: theme('colors.ink.700');
+    text-decoration: none;
+    margin-bottom: 1.75rem;
+    font-size: 0.92rem;
+  }
+  .back-link:hover {
+    color: theme('colors.rose.300');
+  }
+  .back-arrow {
+    transition: transform 200ms ease;
+    display: inline-block;
+  }
+  .back-link:hover .back-arrow {
+    transform: translateX(-3px);
+  }
+
+  .app-hero {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 2.25rem;
+    align-items: start;
+    margin-bottom: 3.25rem;
+  }
+  @media (max-width: 720px) {
+    .app-hero {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+  .app-hero-cover {
+    position: relative;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 18px 44px -14px rgba(74, 60, 46, 0.24);
+    border: 1px solid theme('colors.cream.200');
+  }
+  .app-hero-shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+    mix-blend-mode: overlay;
+  }
+  .app-hero-meta {
+    min-width: 0;
+  }
+  .app-hero-badges {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+  }
+  .app-hero-title {
+    font-size: clamp(1.9rem, 4vw, 2.75rem);
+    margin: 0 0 0.35rem;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+  }
+  .app-hero-subtitle {
+    color: theme('colors.ink.700');
+    font-style: italic;
+    font-size: 0.95rem;
+    margin: 0 0 0.9rem;
+    opacity: 0.72;
+  }
+  .app-hero-desc {
+    color: theme('colors.ink.800');
+    font-size: 1.02rem;
+    margin: 0 0 1.1rem;
+    line-height: 1.75;
+  }
+  .app-hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 1.35rem;
+  }
+  .app-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: theme('colors.rose.300');
+    margin: 0 0 1.25rem;
+  }
+  .section-rule {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  .app-gallery {
+    margin-bottom: 3rem;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.15rem;
+    max-width: 540px;
+    margin-inline: auto;
+  }
+  .gallery-frame {
+    aspect-ratio: 9 / 19.5;
+    border-radius: 1.4rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(74, 60, 46, 0.2);
+    background: theme('colors.cream.100');
+  }
+  .gallery-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .app-features {
+    background: linear-gradient(180deg, theme('colors.cream.50'), theme('colors.cream.100'));
+    padding: 1.6rem 1.9rem;
+    border-radius: theme('borderRadius.soft');
+    border: 1px solid theme('colors.cream.200');
+    margin-bottom: 2.5rem;
+  }
+  .features-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: theme('colors.ink.800');
+    line-height: 1.85;
+  }
+  .features-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .feature-bullet {
+    color: theme('colors.rose.300');
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  .app-footer {
+    margin-top: 3rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid theme('colors.cream.200');
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    font-size: 0.85rem;
+    color: theme('colors.ink.700');
+  }
+  .app-platforms {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .meta-label {
+    margin-right: 0.15rem;
+    opacity: 0.7;
+  }
+</style>

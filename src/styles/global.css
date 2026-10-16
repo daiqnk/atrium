@@ -1,0 +1,471 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   设计令牌（Design Tokens）
+   ------------------------------------------------------------
+   所有颜色集中在两套变量里：:root（浅色）/ [data-theme='dark']（深色）。
+   tailwind.config.mjs 里的色板全部引用这些变量，
+   因此 theme('colors.*') 与 bg-/text- 工具类会自动跟随主题。
+   ============================================================ */
+
+:root {
+  /* 中性色 */
+  --cream-50: #FBF9F5;   /* 页面底色 · 暖纸白 */
+  --cream-100: #F4EFE7;  /* 次背景 */
+  --cream-200: #EAE1D3;  /* 边框 */
+  --surface: #FFFFFF;    /* 卡片表面 */
+  --surface-soft: #F6F2EB;
+
+  /* 强调色 · 玫瑰 / 鼠尾草 / 薰衣草 */
+  --rose-50: #FBF1EE;
+  --rose-100: #F0BCB7;
+  --rose-200: #E0A49D;
+  --rose-300: #C0837C;
+  --sage-100: #C6D3B5;
+  --sage-200: #97AB82;
+  --sage-300: #6F8460;
+  --lavender-100: #E1DDF1;
+  --lavender-200: #BCB5E0;
+  --lavender-300: #8F87BE;
+
+  /* 文字 · 墨色（深暖近黑，给标题更利落的对比） */
+  --ink-700: #6A5D4E;
+  --ink-800: #43392F;
+  --ink-900: #211B14;
+
+  /* 玻璃 / 头部表面 */
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.82);
+  --header-bg: rgba(251, 249, 245, 0.72);
+
+  /* 投影 */
+  --shadow: rgba(33, 27, 20, 0.14);
+  --shadow-strong: rgba(33, 27, 20, 0.24);
+
+  /* 徽标前景（深色文字压在浅彩底上，浅色模式下用深色） */
+  --live-fg: #3F4A31;
+  --soon-fg: #6B4B47;
+
+  /* 场景情绪色 */
+  --scene-rose-bg: #FCF3F1;      --scene-rose-accent: #E0A49D;      --scene-rose-glow: rgba(240, 188, 183, 0.4);
+  --scene-sage-bg: #F2F5ED;      --scene-sage-accent: #97AB82;      --scene-sage-glow: rgba(199, 211, 184, 0.45);
+  --scene-lavender-bg: #F3F1FA;  --scene-lavender-accent: #BCB5E0;  --scene-lavender-glow: rgba(196, 191, 224, 0.45);
+  --scene-cream-bg: #FBF8F3;     --scene-cream-accent: #C0837C;     --scene-cream-glow: rgba(230, 191, 186, 0.35);
+
+  /* 列表页顶部横幅渐变（SeriesBackdrop 用） */
+  --cover-a: #FCF3F1;
+  --cover-b: #F0BCB7;
+  --cover-accent: #97AB82;
+}
+
+[data-theme='dark'] {
+  --cream-50: #14110D;
+  --cream-100: #1D1813;
+  --cream-200: #2E271D;
+  --surface: #1F1A15;
+  --surface-soft: #261F18;
+
+  --rose-50: #2A1D1B;
+  --rose-100: #3E2624;
+  --rose-200: #5A3531;
+  --rose-300: #DBABA5;
+  --sage-100: #29301F;
+  --sage-200: #46523B;
+  --sage-300: #A9BD8F;
+  --lavender-100: #2C2938;
+  --lavender-200: #443F5C;
+  --lavender-300: #B7B0E2;
+
+  --ink-700: #B6A896;
+  --ink-800: #E2D8C9;
+  --ink-900: #F4EDE2;
+
+  --glass: rgba(31, 26, 21, 0.55);
+  --glass-strong: rgba(31, 26, 21, 0.78);
+  --header-bg: rgba(20, 17, 13, 0.66);
+
+  --shadow: rgba(0, 0, 0, 0.5);
+  --shadow-strong: rgba(0, 0, 0, 0.66);
+
+  --live-fg: #C6D5AE;
+  --soon-fg: #E4BFBA;
+
+  --scene-rose-bg: #241B19;      --scene-rose-accent: #DBABA5;      --scene-rose-glow: rgba(219, 171, 165, 0.16);
+  --scene-sage-bg: #1C2117;      --scene-sage-accent: #A9BD8F;      --scene-sage-glow: rgba(169, 189, 143, 0.14);
+  --scene-lavender-bg: #201E2A;  --scene-lavender-accent: #B7B0E2;  --scene-lavender-glow: rgba(183, 176, 226, 0.15);
+  --scene-cream-bg: #221C16;     --scene-cream-accent: #DBABA5;     --scene-cream-glow: rgba(219, 171, 165, 0.12);
+
+  --cover-a: #241B19;
+  --cover-b: #3A2623;
+  --cover-accent: #97AB82;
+}
+
+@layer base {
+  :root {
+    --color-bg: var(--cream-50);
+    --color-fg: var(--ink-800);
+    --color-accent: var(--rose-300);
+  }
+
+  html {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: var(--color-fg);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+  [data-theme='dark'] html {
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  /* 键盘导航时给一个清晰的焦点环，鼠标点击不显示 */
+  :focus-visible {
+    outline: 2px solid theme('colors.rose.300');
+    outline-offset: 3px;
+    border-radius: 0.35rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Noto Serif SC', 'Noto Serif', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: theme('colors.ink.900');
+  }
+  h1 { font-weight: 700; }
+  h2 { font-weight: 600; }
+  h3 { font-weight: 600; }
+  h4 { font-weight: 600; }
+
+  a {
+    transition: color 180ms ease, opacity 180ms ease;
+  }
+
+  ::selection {
+    background: theme('colors.rose.200');
+    color: theme('colors.ink.900');
+  }
+
+  /* 中文环境下优先使用中文字体 */
+  :lang(zh) {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
+  }
+  :lang(zh) h1,
+  :lang(zh) h2,
+  :lang(zh) h3,
+  :lang(zh) h4 {
+    font-family: 'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', serif;
+  }
+}
+
+@layer components {
+  .container-narrow {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .container-prose {
+    max-width: 70ch;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  /* ---------------- 按钮 ---------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 240ms ease, background 240ms ease, color 240ms ease;
+  }
+  .btn-primary {
+    color: theme('colors.ink.900');
+    background: linear-gradient(135deg, var(--rose-200), var(--rose-300));
+    box-shadow: 0 10px 26px -12px var(--rose-300);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 34px -12px var(--rose-300);
+  }
+  .btn-ghost {
+    background: var(--glass);
+    color: theme('colors.ink.800');
+    border: 1px solid theme('colors.cream.200');
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .btn-ghost:hover {
+    background: var(--glass-strong);
+    border-color: var(--rose-200);
+  }
+
+  /* ---------------- 卡片 ---------------- */
+  .card {
+    background: var(--surface);
+    border-radius: theme('borderRadius.soft');
+    padding: 1.5rem;
+    border: 1px solid theme('colors.cream.200');
+    box-shadow: 0 1px 2px -1px var(--shadow), 0 10px 30px -18px var(--shadow);
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 240ms ease, border-color 240ms ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--rose-200);
+    box-shadow: 0 2px 4px -2px var(--shadow), 0 22px 44px -22px var(--shadow-strong);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: theme('colors.rose.50');
+    color: theme('colors.ink.800');
+    font-size: 0.85rem;
+  }
+
+  /* ---------------- 现代工具类 ---------------- */
+  /* 渐变文字（用于 hero 关键词强调） */
+  .text-gradient {
+    background: linear-gradient(120deg, var(--rose-300), var(--lavender-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* 极光渐变底：柔和的多彩弥散，hero 专用 */
+  .aurora {
+    background:
+      radial-gradient(42% 52% at 12% 8%, var(--rose-100), transparent 60%),
+      radial-gradient(46% 56% at 88% 18%, var(--lavender-200), transparent 60%),
+      radial-gradient(50% 60% at 70% 96%, var(--sage-200), transparent 62%),
+      var(--cream-50);
+  }
+
+  /* 玻璃面板 */
+  .glass {
+    background: var(--glass);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+  }
+  [data-theme='dark'] .glass {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* 有机形状：不对称圆角 */
+  .blob {
+    border-radius: 60% 40% 55% 45% / 55% 45% 60% 40%;
+  }
+  .blob-2 {
+    border-radius: 45% 55% 42% 58% / 58% 45% 55% 42%;
+  }
+
+  /* 圆形柔光底 */
+  .soft-glow {
+    position: relative;
+  }
+  .soft-glow::before {
+    content: '';
+    position: absolute;
+    inset: -12%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      var(--glow-color, rgba(240, 188, 183, 0.35)),
+      transparent 70%
+    );
+    filter: blur(24px);
+    z-index: -1;
+    border-radius: 50%;
+  }
+
+  /* 大留白区块 */
+  .section-air {
+    padding-block: clamp(4rem, 9vw, 7rem);
+  }
+
+  /* ---------------- 正文排版 ---------------- */
+  .prose-warm {
+    color: theme('colors.ink.800');
+    line-height: 1.85;
+    font-size: 1.02rem;
+    overflow-wrap: break-word;
+  }
+
+  .prose-warm > p:first-of-type {
+    font-size: 1.12rem;
+    line-height: 1.75;
+    color: theme('colors.ink.900');
+    margin-bottom: 1.5rem;
+  }
+
+  .prose-warm h1,
+  .prose-warm h2,
+  .prose-warm h3,
+  .prose-warm h4 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+  }
+  .prose-warm h1 { font-size: 2rem; }
+  .prose-warm h2 { font-size: 1.55rem; }
+  .prose-warm h3 { font-size: 1.25rem; }
+  .prose-warm h4 { font-size: 1.08rem; }
+  .prose-warm > h1:first-child,
+  .prose-warm > h2:first-child,
+  .prose-warm > h3:first-child {
+    margin-top: 0;
+  }
+  .prose-warm h2 {
+    padding-left: 0.85rem;
+    border-left: 3px solid theme('colors.rose.200');
+  }
+
+  .prose-warm p {
+    margin-bottom: 1.4rem;
+  }
+  .prose-warm strong {
+    color: theme('colors.ink.900');
+    font-weight: 600;
+  }
+  .prose-warm em {
+    color: theme('colors.ink.700');
+  }
+  .prose-warm a {
+    color: theme('colors.ink.900');
+    text-decoration: underline;
+    text-decoration-color: theme('colors.rose.200');
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .prose-warm a:hover {
+    text-decoration-color: theme('colors.rose.300');
+  }
+
+  .prose-warm ul,
+  .prose-warm ol {
+    margin: 0 0 1.25rem;
+    padding-left: 1.35rem;
+  }
+  .prose-warm ul { list-style: disc; }
+  .prose-warm ol { list-style: decimal; }
+  .prose-warm li {
+    margin-bottom: 0.45rem;
+  }
+  .prose-warm li::marker {
+    color: theme('colors.rose.300');
+  }
+
+  .prose-warm blockquote {
+    margin: 2rem auto;
+    padding: 2rem 1rem 1.25rem;
+    max-width: 80%;
+    text-align: center;
+    color: theme('colors.ink.800');
+    font-family: 'Noto Serif SC', 'Noto Serif', serif;
+    font-style: normal;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    border: 0;
+    position: relative;
+  }
+  .prose-warm blockquote::before {
+    content: '\201C';
+    position: absolute;
+    top: -0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 5rem;
+    line-height: 1;
+    color: theme('colors.rose.200');
+    opacity: 0.7;
+  }
+  .prose-warm blockquote p {
+    margin: 0;
+  }
+
+  .prose-warm hr {
+    border: 0;
+    height: 1px;
+    background: theme('colors.cream.200');
+    margin: 2.25rem 0;
+  }
+
+  .prose-warm table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    border: 1px solid theme('colors.cream.200');
+    border-radius: 0.85rem;
+    overflow: hidden;
+  }
+  .prose-warm thead th {
+    background: theme('colors.cream.100');
+    color: theme('colors.ink.900');
+    font-weight: 600;
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid theme('colors.cream.200');
+    white-space: nowrap;
+  }
+  .prose-warm tbody td {
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid theme('colors.cream.100');
+    vertical-align: top;
+  }
+  .prose-warm tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .prose-warm tbody tr:nth-child(even) {
+    background: var(--surface-soft);
+  }
+
+  .prose-warm code {
+    background: theme('colors.cream.100');
+    padding: 0.12rem 0.38rem;
+    border-radius: 0.35rem;
+    font-size: 0.9em;
+  }
+  .prose-warm pre {
+    background: theme('colors.cream.100');
+    padding: 1rem 1.15rem;
+    border-radius: 0.85rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+  .prose-warm pre code {
+    background: transparent;
+    padding: 0;
+  }
+  .prose-warm img {
+    border-radius: 0.85rem;
+    margin: 1.5rem 0;
+  }
+}

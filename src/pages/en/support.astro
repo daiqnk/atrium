@@ -1,0 +1,43 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getDict } from '@/i18n/utils';
+import { supportIssuesUrl } from '@/data/legal';
+import { withBase } from '@/utils/paths';
+
+const dict = getDict('en');
+---
+
+<BaseLayout title={`Support · ${dict.siteName}`} description="FAQ and contact for the Gleam app series.">
+  <section class="container-prose pt-12 pb-24">
+    <PageHeader eyebrow="Support" title="Help & Support" description="Frequently asked questions about the Gleam apps, and how to reach us." />
+
+    <div class="prose-warm">
+      <h2>FAQ</h2>
+
+      <h3>How do I open settings?</h3>
+      <p>Most Gleam apps keep their interface minimal and hide settings: <strong>shake your iPhone</strong> to reveal them (filters in WilLume, the settings panel in Fingertip and Tide, the calendar source in When Will It Come). In Fingertip, ambient sound can be turned off in the side drawer.</p>
+
+      <h3>Do I have to buy again on a new phone?</h3>
+      <p>No. The Gleam apps are one-time paid downloads. Sign in to the App Store with the same Apple ID and re-download them from Purchased. The apps support Family Sharing.</p>
+
+      <h3>How do I request a refund?</h3>
+      <p>Apple handles payments, so refunds go through Apple: visit <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener">reportaproblem.apple.com</a> or see <a href="https://support.apple.com/en-us/118223" target="_blank" rel="noopener">Apple Support: request a refund</a>.</p>
+
+      <h3>Is my data uploaded?</h3>
+      <p>According to their App Store privacy labels, all Gleam apps are "Data Not Collected." See the <a href={withBase('/en/privacy')}>Privacy Policy</a>.</p>
+
+      <h3>Are the apps in English?</h3>
+      <p>The apps' interfaces and App Store listings are currently in Chinese.</p>
+
+      <h2>Contact</h2>
+      <ul>
+        <li>Bug reports and feature requests: <a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a> (GitHub account required)</li>
+        <li>Please include the app name, your iPhone model and iOS version</li>
+      </ul>
+
+      <h2>Need mental health support?</h2>
+      <p>The Gleam apps are lifestyle apps for relaxation and awareness, not medical or therapy products. If you are struggling, please reach out to a professional. In a crisis, contact local emergency services (in the US, call or text 988).</p>
+    </div>
+  </section>
+</BaseLayout>

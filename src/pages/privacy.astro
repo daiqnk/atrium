@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getDict } from '@/i18n/utils';
+import { developerName, appPrivacyPolicies, supportIssuesUrl } from '@/data/legal';
+import { withBase } from '@/utils/paths';
+
+const dict = getDict('zh');
+---
+
+<BaseLayout title={`隐私政策 · ${dict.siteName}`} description="心庭网站与微光系列 App 的隐私说明。">
+  <section class="container-prose pt-12 pb-24">
+    <PageHeader eyebrow="隐私" title="隐私政策" description="最后更新：2026 年 10 月 16 日" />
+
+    <div class="prose-warm">
+      <h2>一、本网站</h2>
+      <p>心庭是一个纯静态网站，托管在 GitHub Pages 上。</p>
+      <ul>
+        <li><strong>我们不设账号、不收集表单、不使用统计分析或广告追踪代码</strong>，也不设置用于追踪的 Cookie。</li>
+        <li>你选择的深色 / 浅色主题只保存在你自己浏览器的 localStorage 里，不会发给我们。</li>
+        <li>网站托管方 GitHub 可能出于安全和运营需要记录访问日志（如 IP 地址），详见 <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub 隐私声明</a>。</li>
+        <li>网站字体从 Google Fonts 加载，你的浏览器会向 Google 发出请求，详见 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google 隐私政策</a>。</li>
+        <li>App 截图和图标来自 App Store 公开页面，已保存在本站，浏览时不会向第三方请求图片。</li>
+        <li>点击「在 App Store 下载」会跳转到 Apple 的网站，之后的处理适用 Apple 的隐私政策。</li>
+      </ul>
+
+      <h2>二、微光系列 App</h2>
+      <p>
+        微光系列 App 在 App Store 上的开发者是 <strong>{developerName}</strong>。根据开发者在 App Store 上的隐私标签，以下 App 均为
+        <strong>「未收集数据（Data Not Collected）」</strong>。这些标签由开发者自行申报，Apple 未做核验。
+      </p>
+      <ul>
+        {appPrivacyPolicies.map((p) => (
+          <li>
+            <a href={withBase(`/apps/${p.slug}`)}>{p.zh}</a> ·
+            <a href={p.url} target="_blank" rel="noopener">官方隐私政策</a>
+          </li>
+        ))}
+      </ul>
+      <p>各 App 的具体隐私处理以其官方隐私政策为准。例如《什么时候到》的日历权限只用于读取本地事件，不上传、不存储、不分享。</p>
+
+      <h2>三、联系我们</h2>
+      <p>对隐私有疑问，可以通过 <a href={withBase('/support')}>支持页</a> 列出的渠道联系我们（<a href={supportIssuesUrl} target="_blank" rel="noopener">GitHub Issues</a>）。</p>
+
+      <h2>四、变更</h2>
+      <p>本政策如有更新，会修改本页顶部的「最后更新」日期。</p>
+    </div>
+  </section>
+</BaseLayout>

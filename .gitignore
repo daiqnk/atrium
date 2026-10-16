@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-*/
+.astro/
+*.log
+.DS_Store
+
+# 本地资料，不进公开仓库
+.workbuddy/
+_research/

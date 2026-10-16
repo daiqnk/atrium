@@ -1,0 +1,127 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getLocaleFromUrl, bareSlug } from '@/i18n/utils';
+import { difficultyLabel, difficultyTone, word, formatDate } from '@/i18n/labels';
+import Badge from './ui/Badge.astro';
+import Tag from './ui/Tag.astro';
+import Chip from './ui/Chip.astro';
+
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  publishedAt: Date;
+  readingTime?: number;
+  variant?: 'knowledge' | 'wellness';
+  duration?: string;
+  difficulty?: string;
+}
+
+const {
+  slug,
+  title,
+  description,
+  category,
+  tags,
+  publishedAt,
+  readingTime,
+  variant = 'knowledge',
+  duration,
+  difficulty,
+} = Astro.props;
+
+const locale = getLocaleFromUrl(Astro.url);
+const base = variant === 'wellness'
+  ? (locale === 'en' ? '/en/wellness' : '/wellness')
+  : (locale === 'en' ? '/en/knowledge' : '/knowledge');
+const href = `${base}/${bareSlug(slug)}`;
+---
+
+<a href={withBase(href)} class="card article-card h-full" data-no-lang-switch>
+  <div class="article-head">
+    <Badge kind="series" series={category} />
+    <Chip kind="date" text={formatDate(publishedAt, locale)} />
+  </div>
+  <h3 class="article-title">{title}</h3>
+  <p class="article-desc">{description}</p>
+
+  {variant === 'knowledge' && tags.length > 0 && (
+    <div class="article-tags">
+      {tags.slice(0, 4).map((t) => <Tag text={t} />)}
+    </div>
+  )}
+
+  <div class="article-meta">
+    {variant === 'knowledge' && readingTime && (
+      <Chip kind="meta" text={`${readingTime} ${word('minute', locale)}`} />
+    )}
+    {variant === 'wellness' && duration && (
+      <Chip kind="meta" text={duration} />
+    )}
+    {variant === 'wellness' && difficulty && (
+      <Badge
+        kind="neutral"
+        tone={difficultyTone(difficulty)}
+        text={difficultyLabel(difficulty, locale)}
+      />
+    )}
+  </div>
+</a>
+
+<style>
+  .article-card {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease;
+  }
+  .article-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--rose-200);
+    /* 长投影：来自 Headspace 卡面悬停 */
+    box-shadow:
+      0 2px 4px -2px var(--shadow),
+      0 18px 36px -14px var(--shadow-strong),
+      0 32px 64px -28px var(--shadow-strong);
+  }
+  .article-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .article-title {
+    margin: 0;
+    font-size: 1.18rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .article-desc {
+    color: theme('colors.ink.700');
+    font-size: 0.92rem;
+    margin: 0;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.15rem;
+  }
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 0.6rem;
+  }
+</style>

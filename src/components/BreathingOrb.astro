@@ -1,0 +1,299 @@
+---
+/**
+ * 呼吸球（Breathing Orb）—— Calm 式「先体验再下载」的核心体验。
+ *
+ * 4-4-4-4 盒式呼吸：吸气 4 秒 → 屏息 4 秒 → 呼气 4 秒 → 屏息 4 秒，循环。
+ * 纯 CSS transition + 少量 JS（阶段计时器 + 播放/暂停）。
+ *
+ * 设计原则：
+ *   - 球体用渐变 + 弥散光晕，随呼吸放大缩小
+ *   - 阶段文字（吸气/屏息/呼气）显示在圆心
+ *   - 点一下开始/暂停，移动端优先
+ *   - prefers-reduced-motion 用户：不自动循环，仅显示静态引导
+ *
+ * 用法：
+ *   <BreathingOrb locale="zh" title="先试一次盒式呼吸" />
+ */
+
+interface Props {
+  locale?: 'zh' | 'en';
+  /** 组件上方的说明小标题 */
+  title?: string;
+  /** 呼吸节奏（秒），默认 4-4-4-4 盒式 */
+  inSec?: number;
+  holdSec?: number;
+  outSec?: number;
+}
+
+const {
+  locale = 'zh',
+  title,
+  inSec = 4,
+  holdSec = 4,
+  outSec = 4,
+} = Astro.props;
+
+const copy = locale === 'zh'
+  ? {
+      ready: '点一下开始',
+      running: '再点一下暂停',
+      paused: '继续呼吸',
+      phases: ['吸气', '屏息', '呼气', '屏息'],
+      title: title ?? '先试一次盒式呼吸',
+      subtitle: '吸气 4 秒 · 屏息 4 秒 · 呼气 4 秒 · 屏息 4 秒',
+    }
+  : {
+      ready: 'Tap to begin',
+      running: 'Tap to pause',
+      paused: 'Resume',
+      phases: ['Breathe in', 'Hold', 'Breathe out', 'Hold'],
+      title: title ?? 'Try box breathing',
+      subtitle: 'In 4s · Hold 4s · Out 4s · Hold 4s',
+    };
+---
+
+<section class="breath-wrap" data-breath
+  data-in={inSec} data-hold={holdSec} data-out={outSec}
+  data-l1={copy.phases[0]} data-l2={copy.phases[1]}
+  data-l3={copy.phases[2]} data-l4={copy.phases[3]}
+  data-hint-running={copy.running} data-hint-paused={copy.paused}
+>
+  <h2 class="breath-title">{copy.title}</h2>
+  <p class="breath-subtitle">{copy.subtitle}</p>
+
+  <div class="breath-stage">
+    <button
+      type="button"
+      class="breath-orb"
+      data-toggle
+      aria-label={locale === 'zh' ? '开始呼吸练习' : 'Start breathing'}
+      aria-pressed="false"
+    >
+      <span class="breath-halo" data-halo aria-hidden="true"></span>
+      <span class="breath-ring" data-ring aria-hidden="true"></span>
+      <span class="breath-core" data-core aria-hidden="true"></span>
+      <span class="breath-phase" data-phase>{copy.ready}</span>
+    </button>
+  </div>
+
+  <p class="breath-hint" data-hint>{copy.ready}</p>
+</section>
+
+<style>
+  .breath-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    text-align: center;
+    padding: 2.5rem 1.5rem 3rem;
+  }
+  .breath-title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .breath-subtitle {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 0.85rem;
+    opacity: 0.75;
+    letter-spacing: 0.04em;
+  }
+
+  .breath-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20rem;
+    width: 20rem;
+    max-width: 80vw;
+    max-height: 80vw;
+  }
+
+  .breath-orb {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 弥散光晕（随呼吸放大） */
+  .breath-halo {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(245, 198, 196, 0.55),
+      rgba(196, 191, 224, 0.25) 55%,
+      transparent 75%
+    );
+    filter: blur(22px);
+    transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  /* 外层细环 */
+  .breath-ring {
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    border: 1.5px solid rgba(230, 191, 186, 0.55);
+    transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  /* 核心渐变球 */
+  .breath-core {
+    position: absolute;
+    inset: 34%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 32% 28%,
+      #FFFFFF 0%,
+      theme('colors.rose.100') 28%,
+      theme('colors.rose.200') 62%,
+      theme('colors.lavender.200') 100%
+    );
+    box-shadow:
+      0 10px 40px -8px rgba(230, 191, 186, 0.55),
+      inset 0 -6px 18px rgba(201, 162, 158, 0.35);
+    transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  /* 阶段文字 */
+  .breath-phase {
+    position: relative;
+    z-index: 2;
+    font-family: 'Noto Serif SC', 'Noto Serif', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: theme('colors.ink.900');
+    text-shadow: 0 1px 8px rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+
+  .breath-hint {
+    margin: 0;
+    color: theme('colors.ink.700');
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  /* 运行时球体带轻微呼吸感 */
+  .breath-orb:focus-visible {
+    outline: 2px solid theme('colors.rose.300');
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .breath-halo,
+    .breath-ring,
+    .breath-core {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  // 呼吸阶段机：CSS transition 负责缩放，JS 只负责「阶段切换 + 播放/暂停」，
+  // 保证文字与缩放严格同步，且暂停/恢复逻辑清晰。
+  const root = document.querySelector<HTMLElement>('[data-breath]');
+  if (root) {
+    const core = root.querySelector<HTMLElement>('[data-core]');
+    const ring = root.querySelector<HTMLElement>('[data-ring]');
+    const halo = root.querySelector<HTMLElement>('[data-halo]');
+    const phaseEl = root.querySelector<HTMLElement>('[data-phase]');
+    const hint = root.querySelector<HTMLElement>('[data-hint]');
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]');
+
+    const phases = [
+      { label: root.dataset.l1 ?? '', dur: Number(root.dataset.in ?? 4), scale: 1 },
+      { label: root.dataset.l2 ?? '', dur: Number(root.dataset.hold ?? 4), scale: 1 },
+      { label: root.dataset.l3 ?? '', dur: Number(root.dataset.out ?? 4), scale: 0 },
+      { label: root.dataset.l4 ?? '', dur: Number(root.dataset.hold ?? 4), scale: 0 },
+    ];
+
+    // 目标缩放比例：core 吸气到 1.35，呼气回 0.72；环/光晕对应略大
+    const scaleOf = (phase: (typeof phases)[number]) => {
+      const target = phase.scale === 1 ? 1.35 : 0.72;
+      return target;
+    };
+
+    let running = false;
+    let timer: number | undefined;
+    let idx = 0;
+
+    const apply = (i: number) => {
+      const p = phases[i];
+      const target = scaleOf(p);
+      const dur = p.dur;
+      const ease = 'cubic-bezier(0.4, 0, 0.2, 1)';
+      if (core) {
+        core.style.transition = `transform ${dur}s ${ease}`;
+        core.style.transform = `scale(${target})`;
+      }
+      if (ring) {
+        ring.style.transition = `transform ${dur}s ${ease}`;
+        ring.style.transform = `scale(${target + 0.08})`;
+      }
+      if (halo) {
+        halo.style.transition = `transform ${dur}s ${ease}`;
+        halo.style.transform = `scale(${target + 0.14})`;
+      }
+      if (phaseEl) phaseEl.textContent = p.label;
+    };
+
+    const tick = () => {
+      apply(idx);
+      const dur = phases[idx].dur * 1000;
+      timer = window.setTimeout(() => {
+        idx = (idx + 1) % phases.length;
+        tick();
+      }, dur);
+    };
+
+    const start = () => {
+      running = true;
+      idx = 0;
+      root.classList.add('is-running');
+      toggle?.setAttribute('aria-pressed', 'true');
+      if (hint) hint.textContent = root.dataset.hintRunning ?? '';
+      apply(0);
+      tick();
+    };
+
+    const pause = () => {
+      running = false;
+      root.classList.remove('is-running');
+      if (timer) window.clearTimeout(timer);
+      toggle?.setAttribute('aria-pressed', 'false');
+      if (hint) hint.textContent = root.dataset.hintPaused ?? '';
+    };
+
+    toggle?.addEventListener('click', () => {
+      if (running) pause();
+      else start();
+    });
+
+    // prefers-reduced-motion：不自动循环，只给静态引导
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      if (core) core.style.transform = 'scale(1.1)';
+      if (phaseEl) phaseEl.textContent = phases[0].label;
+    }
+  }
+</script>

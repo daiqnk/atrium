@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import SceneCard from '@/components/SceneCard.astro';
+import { getDict } from '@/i18n/utils';
+import { scenes } from '@/data/scenes';
+
+const dict = getDict('zh');
+const locale = 'zh' as const;
+---
+
+<BaseLayout title={`需求场景 · ${dict.siteName}`} description="按你此刻的状态，找到对应的 App、知识与练习。">
+  <section class="container-narrow section-air">
+    <RevealOnScroll>
+      <PageHeader
+        eyebrow="Scenes"
+        title="你此刻想要哪种状态？"
+        description="少点压力、睡个好觉、集中注意力…… 按真实需求进来，而不是按目录翻。"
+        size="lg"
+      />
+    </RevealOnScroll>
+
+    <div class="scene-grid">
+      {scenes.map((scene, i) => (
+        <RevealOnScroll y={20} delay={i * 90}>
+          <SceneCard scene={scene} locale={locale} />
+        </RevealOnScroll>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .scene-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+/**
+ * 页面标题区 —— 列表页 / 关于页 / 404 / 章节头的统一出口。
+ *
+ * 借鉴 School of Life（横线 eyebrow）+ Waking Up（衬线大标题 +
+ * 暗底变体）+ Linear（章节小标题大写小字距）三派。
+ *
+ * 用法：
+ *   <PageHeader title="App 矩阵" description="…" />            <!-- 普通 -->
+ *   <PageHeader title="…" eyebrow="404" align="center" />       <!-- 居中 -->
+ *   <PageHeader title="…" tone="dark" />                         <!-- 暗底（详情页 hero 下的章节头） -->
+ *   <PageHeader title="…" size="lg" eyebrow="What we offer" />  <!-- 大字号 -->
+ */
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center';
+  /** 暗底场景：详情页 hero 之后的第一章节；深褐背景 + 米白文字 */
+  tone?: 'light' | 'dark';
+  /** 大字号变体：首页 hero 下方章节用 */
+  size?: 'md' | 'lg';
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  align = 'left',
+  tone = 'light',
+  size = 'md',
+} = Astro.props;
+---
+
+<header class="page-header" data-align={align} data-tone={tone} data-size={size}>
+  {eyebrow && (
+    <p class="page-eyebrow">
+      <span class="page-eyebrow-rule" aria-hidden="true"></span>
+      <span>{eyebrow}</span>
+    </p>
+  )}
+  <h1 class="page-title">{title}</h1>
+  {description && <p class="page-desc">{description}</p>}
+  <div class="page-rule" aria-hidden="true"></div>
+</header>
+
+<style>
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+  /* 暗底变体：用于详情页 hero 之后，铺一层深褐渐变底 + 米白文字。
+     这是一个「刻意保持深色」的强调卡，不随主题反色（固定深褐 + 固定浅字） */
+  .page-header[data-tone='dark'] {
+    margin-bottom: 2rem;
+    padding: 1.75rem 1.5rem 1.5rem;
+    border-radius: 1.5rem;
+    background:
+      radial-gradient(
+        120% 120% at 0% 0%,
+        rgba(224, 164, 157, 0.22),
+        transparent 60%
+      ),
+      linear-gradient(160deg, #211B14, #43392F);
+    color: #FBF9F5;
+    box-shadow: 0 18px 44px -22px rgba(0, 0, 0, 0.5);
+  }
+  .page-header[data-tone='dark'] .page-title {
+    color: #FBF9F5;
+  }
+  .page-header[data-tone='dark'] .page-desc {
+    color: rgba(251, 249, 245, 0.78);
+  }
+  .page-header[data-tone='dark'] .page-eyebrow {
+    color: var(--rose-200);
+  }
+  .page-header[data-tone='dark'] .page-eyebrow-rule {
+    background: linear-gradient(
+      90deg,
+      var(--rose-300),
+      transparent
+    );
+  }
+  .page-header[data-tone='dark'] .page-rule {
+    background: linear-gradient(
+      90deg,
+      var(--rose-200),
+      var(--sage-200),
+      transparent
+    );
+  }
+
+  /* 居中对齐：rule 与 desc 居中 */
+  .page-header[data-align='center'] {
+    text-align: center;
+  }
+  .page-header[data-align='center'] .page-desc {
+    margin-inline: auto;
+  }
+  .page-header[data-align='center'] .page-rule {
+    margin-inline: auto;
+  }
+
+  /* eyebrow 前的小横线：让"小标签"看起来更"印刷"水平（School of Life 风） */
+  .page-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0 0 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: theme('colors.rose.300');
+  }
+  .page-eyebrow-rule {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: clamp(1.9rem, 4.2vw, 2.9rem);
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  /* lg 变体：用于「三大入口」之上的过渡区（来自 Linear / Waking Up） */
+  .page-header[data-size='lg'] .page-title {
+    font-size: clamp(2.1rem, 4.6vw, 3.2rem);
+  }
+
+  .page-desc {
+    margin: 0.95rem 0 0;
+    max-width: 62ch;
+    color: theme('colors.ink.700');
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+
+  /* 标题下方的渐变细线，替代生硬的 1px 灰线 */
+  .page-rule {
+    margin-top: 1.5rem;
+    height: 2px;
+    width: 100%;
+    max-width: 8rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+      90deg,
+      theme('colors.rose.200'),
+      theme('colors.sage.200'),
+      transparent
+    );
+  }
+</style>

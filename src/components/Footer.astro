@@ -1,0 +1,109 @@
+---
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getLocaleFromUrl, getDict, getNav, getA11y } from '@/i18n/utils';
+import { legalItems } from '@/i18n/dictionaries';
+
+const locale = getLocaleFromUrl(Astro.url);
+const dict = getDict(locale);
+const nav = getNav(locale);
+const a11y = getA11y(locale);
+const year = new Date().getFullYear();
+const legal = legalItems[locale];
+---
+
+<footer class="site-footer">
+  <div class="container-narrow py-12">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <p class="footer-quote">{dict.footerCopyright}</p>
+      </div>
+
+      <nav class="footer-nav" aria-label={a11y.footerNav}>
+        {nav.map((item) => (
+          <a href={withBase(item.href)} class="footer-link" data-no-lang-switch>{item.label}</a>
+        ))}
+      </nav>
+    </div>
+
+    <p class="footer-disclaimer">{dict.footerDisclaimer}</p>
+
+    <div class="footer-bottom">
+      <span>© {year} {dict.siteName}</span>
+      {legal.map((item) => (
+        <>
+          <span class="footer-dot" aria-hidden="true">·</span>
+          <a href={withBase(item.href)} class="footer-legal" data-no-lang-switch>{item.label}</a>
+        </>
+      ))}
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-disclaimer {
+    margin: 1.25rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: theme('colors.ink.700');
+    max-width: 72ch;
+  }
+  .footer-legal {
+    color: inherit;
+    text-decoration: none;
+  }
+  .footer-legal:hover {
+    text-decoration: underline;
+  }
+  .site-footer {
+    border-top: 1px solid theme('colors.cream.200');
+    background:
+      linear-gradient(180deg, transparent, theme('colors.cream.100'));
+    margin-top: 5rem;
+  }
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid theme('colors.cream.200');
+  }
+  .footer-quote {
+    color: theme('colors.ink.700');
+    font-style: italic;
+    margin: 0;
+    max-width: 40ch;
+    font-family: 'Noto Serif SC', 'Noto Serif', serif;
+    line-height: 1.7;
+  }
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.25rem;
+  }
+  .footer-link {
+    color: theme('colors.ink.700');
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+  .footer-link:hover {
+    color: theme('colors.ink.900');
+    text-decoration: underline;
+    text-decoration-color: theme('colors.rose.200');
+    text-underline-offset: 3px;
+  }
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-top: 1.25rem;
+    color: theme('colors.ink.700');
+    font-size: 0.82rem;
+    opacity: 0.75;
+  }
+  .footer-dot {
+    opacity: 0.5;
+  }
+</style>

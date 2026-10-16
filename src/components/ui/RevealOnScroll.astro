@@ -1,0 +1,101 @@
+---
+/**
+ * 滚动渐显（IntersectionObserver）
+ *
+ * 借鉴 Linear / Headspace / Waking Up 的「区块进入视口时上移 + 淡入」节奏。
+ *
+ * 用法：
+ *   <RevealOnScroll>...</RevealOnScroll>            <!-- 默认 delay 0ms -->
+ *   <RevealOnScroll delay={120}>...</RevealOnScroll> <!-- 80~200ms 之间 -->
+ *   <RevealOnScroll y={20}>...</RevealOnScroll>    <!-- 上移距离，px -->
+ *   <RevealOnScroll as="section">...</RevealOnScroll>
+ *
+ * 关键约束：
+ *   - SSR 渲染时默认 opacity:1 / translate(0) —— 没有 JS / JS 失败时也要看见内容
+ *   - 用 `<script>` 在客户端把 is:inline 脚本延迟到 hydration 之后运行
+ *   - prefers-reduced-motion 用户：跳过动画
+ */
+
+interface Props {
+  /** 触发前上移距离（px），默认 14 */
+  y?: number;
+  /** 进入视口后延迟多久开始（ms），用于堆叠卡片错峰出现。0~400 */
+  delay?: number;
+  /** 包裹的 HTML 元素 */
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+
+const { y = 14, delay = 0, as = 'div', class: className = '' } = Astro.props;
+
+const Tag = as as keyof HTMLElementTagNameMap;
+---
+
+<Tag class:list={['reveal', className]} data-reveal data-y={y} data-delay={delay}>
+  <slot />
+</Tag>
+
+<style>
+  /* SSR 默认就是「显示态」—— 没有 JS 也不会丢内容 */
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+                transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  /* 浏览器标记可见后才加 hidden class，让「渐显」发生在加载完之后 */
+  :where(html.js-ready) .reveal[data-state='hidden'] {
+    opacity: 0;
+    transform: translateY(var(--reveal-y, 14px));
+  }
+  /* 用户开 reduce-motion：完全跳过 */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+</style>
+
+<script>
+  // 把每个 RevealOnScroll 的延迟、threshold 算出来；未进入视口的标 hidden。
+  // 当 IO 触发时改 data-state=visible 让 CSS 过渡跑完。
+  const init = () => {
+    document.documentElement.classList.add('js-ready');
+    const els = document.querySelectorAll<HTMLElement>('[data-reveal][data-state="hidden"], [data-reveal]:not([data-state])');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) {
+      // 标记为 visible，CSS 自然保持 opacity:1
+      els.forEach((el) => el.setAttribute('data-state', 'visible'));
+      return;
+    }
+    els.forEach((el) => {
+      const y = Number(el.dataset.y ?? '14');
+      el.style.setProperty('--reveal-y', `${y}px`);
+      // 默认 hidden，交给 IO 翻为 visible
+      if (!el.hasAttribute('data-state')) el.setAttribute('data-state', 'hidden');
+    });
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          const delay = Number(el.dataset.delay ?? '0');
+          setTimeout(() => el.setAttribute('data-state', 'visible'), delay);
+          io.unobserve(el);
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.08 },
+    );
+    els.forEach((el) => io.observe(el));
+  };
+
+  // 脚本在 body 末加载 + defer：先让 CSS 接管，避免抖动
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>

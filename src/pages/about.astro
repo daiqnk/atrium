@@ -1,0 +1,46 @@
+---
+import { withBase } from '@/utils/paths';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/ui/PageHeader.astro';
+import { getDict } from '@/i18n/utils';
+
+const dict = getDict('zh');
+---
+
+<BaseLayout
+  title={`关于 · ${dict.siteName}`}
+  description="关于这个网站与它的建造者。"
+>
+  <section class="container-prose pt-12 pb-24">
+    <PageHeader eyebrow="关于" title="关于这个网站" />
+
+    <div class="prose-warm">
+      <p>
+        「心庭」是一个把<strong>心理学原理、工具与可操作练习</strong>放在同一处的小站。
+      </p>
+      <p>
+        三块内容互为补足：
+      </p>
+      <ul>
+        <li><strong>App 系列</strong> — 「微光」系列 iOS 小应用，围绕放松、觉察与专注，在 App Store 一次性付费下载。</li>
+        <li><strong>心理学知识</strong> — 面向大众的科普短文，每篇都附上所引研究的原始出处。</li>
+        <li><strong>日常调适</strong> — 立刻能用的小练习，3–10 分钟一份。</li>
+      </ul>
+
+      <h2>我为什么做这个</h2>
+      <p>
+        心理学最有用的部分往往不在论文里，而在我们愿意花<strong> 3 分钟</strong> 把它变成一个动作的时候。
+        这个站点想做的，就是让那 3 分钟尽量短。
+      </p>
+
+      <h2>边界</h2>
+      <ul>
+        <li>这是科普与工具站，<strong>不替代专业咨询与诊断</strong>。</li>
+        <li>根据 App Store 隐私标签，微光系列 App 均为「未收集数据」，详见<a href={withBase('/privacy')}>隐私政策</a>。</li>
+        <li>作者不是执业医生或心理咨询师。站内部分文章由 AI 辅助撰写，引用的研究已核对原始文献信息。</li>
+        <li>如需帮助，请寻求专业人士；紧急情况请拨打 120 / 110 或全国心理援助热线 12356。</li>
+        <li>内容以"温和的科学"为目标，避免渲染焦虑、贩卖症状。</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,96 @@
+---
+import ContentNotice from '@/components/ui/ContentNotice.astro';
+import { withBase, stripBase, absUrl } from '@/utils/paths';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RevealOnScroll from '@/components/ui/RevealOnScroll.astro';
+import ArticleHero from '@/components/ui/ArticleHero.astro';
+import { getDict } from '@/i18n/utils';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('knowledge', ({ data }) => data.locale === 'zh');
+  return entries.map((entry) => ({
+    params: { slug: entry.slug.split('/').pop() ?? entry.slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'knowledge'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const dict = getDict('zh');
+const locale = 'zh' as const;
+
+const slug = entry.slug.split('/').pop() ?? entry.slug;
+const pageUrl = absUrl(`/knowledge/${slug}`, Astro.site, Astro.url.origin);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: entry.data.title,
+  description: entry.data.description,
+  datePublished: entry.data.publishedAt.toISOString(),
+  dateModified: entry.data.publishedAt.toISOString(),
+  inLanguage: 'zh-CN',
+  mainEntityOfPage: pageUrl,
+  url: pageUrl,
+  keywords: entry.data.tags.join(', '),
+  disambiguatingDescription: 'Psychology education content. Not a substitute for professional consultation or diagnosis.',
+};
+---
+
+<BaseLayout
+  title={`${entry.data.title} · ${dict.siteName}`}
+  description={entry.data.description}
+  jsonLd={jsonLd}
+  ogType="article"
+>
+  <article class="container-prose pt-10 pb-24">
+    <a href={withBase('/knowledge')} class="back-link" data-no-lang-switch>
+      <span class="back-arrow" aria-hidden="true">←</span> {dict.backToList}
+    </a>
+
+    <ArticleHero
+      variant="knowledge"
+      category={entry.data.category}
+      title={entry.data.title}
+      lede={entry.data.description}
+      publishedAt={entry.data.publishedAt}
+      readingTime={entry.data.readingTime}
+      locale={locale}
+      tags={entry.data.tags}
+    />
+
+    <RevealOnScroll y={14}>
+      <div class="prose-warm">
+        <Content />
+      </div>
+    </RevealOnScroll>
+    <ContentNotice locale="zh" aiAssisted={entry.data.aiAssisted} />
+  </article>
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: theme('colors.ink.700');
+    text-decoration: none;
+    margin-bottom: 1.75rem;
+    font-size: 0.92rem;
+  }
+  .back-link:hover {
+    color: theme('colors.rose.300');
+  }
+  .back-arrow {
+    transition: transform 200ms ease;
+    display: inline-block;
+  }
+  .back-link:hover .back-arrow {
+    transform: translateX(-3px);
+  }
+</style>
