@@ -6,7 +6,6 @@ category: Body Regulation
 duration: 10 minutes
 difficulty: medium
 tags: [stress, sleep, body]
-aiAssisted: true
 publishedAt: 2026-08-30
 ---
 

@@ -5,7 +5,6 @@ description: Every switch between tasks costs your brain a "getting back into it
 category: Focus
 tags: [focus, attention, stress, habits]
 readingTime: 5
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

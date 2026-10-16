@@ -5,7 +5,6 @@ description: Carol Dweck 的 30 年研究——一句"你是聪明的"可能正�
 category: 动机与学习
 tags: [思维, 父母, 学习, 韧性]
 readingTime: 7
-aiAssisted: true
 publishedAt: 2026-08-05
 ---
 

@@ -5,7 +5,6 @@ description: Your brain is not a neutral fact-machine. It has a few reliable hab
 category: Cognitive Behavioral
 tags: [CBT, thinking, anxiety, depression]
 readingTime: 8
-aiAssisted: true
 publishedAt: 2026-08-25
 ---
 

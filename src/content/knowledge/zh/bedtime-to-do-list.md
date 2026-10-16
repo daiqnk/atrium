@@ -5,7 +5,6 @@ description: 一项睡眠实验室研究发现，睡前写下接下来要做的�
 category: 睡眠
 tags: [睡眠, 失眠, 焦虑, 担忧]
 readingTime: 5
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

@@ -5,7 +5,6 @@ description: 把紧张时的身体反应理解为「身体在帮我准备」，�
 category: 压力
 tags: [压力, 紧张, 焦虑, 思维]
 readingTime: 6
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

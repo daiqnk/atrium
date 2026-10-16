@@ -5,7 +5,6 @@ description: Putting a feeling into words may itself be a gentle form of emotion
 category: Emotion regulation
 tags: [anxiety, stress, emotion, self-awareness]
 readingTime: 5
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

@@ -56,7 +56,7 @@ export const ui = {
     contact: '联系',
     footerCopyright: '用理解替代评判，从一点觉察开始。',
     footerDisclaimer:
-      '免责声明：本站内容仅用于心理健康科普与日常自助练习，部分内容由 AI 辅助撰写；作者不是执业医生或心理咨询师，内容不构成诊断、治疗或专业建议。如需帮助请寻求专业人士；紧急情况请拨打 120 / 110 或全国心理援助热线 12356。',
+      '免责声明：本站内容仅用于心理健康科普与日常自助练习；作者不是执业医生或心理咨询师，内容不构成诊断、治疗或专业建议。如需帮助请寻求专业人士；紧急情况请拨打 120 / 110 或全国心理援助热线 12356。',
     languageSwitch: '语言',
     updated: '最后更新',
     readMore: '阅读全文',
@@ -86,7 +86,7 @@ export const ui = {
     contact: 'Contact',
     footerCopyright: 'Replace judgment with understanding. Begin with a single moment of awareness.',
     footerDisclaimer:
-      'Disclaimer: this site offers general wellbeing education and self-help practices; some content is written with AI assistance. The author is not a licensed clinician or therapist, and nothing here is a diagnosis, treatment or professional advice. If you need help, please contact a professional; in a crisis, contact local emergency services (US: call or text 988).',
+      'Disclaimer: this site offers general wellbeing education and self-help practices. The author is not a licensed clinician or therapist, and nothing here is a diagnosis, treatment or professional advice. If you need help, please contact a professional; in a crisis, contact local emergency services (US: call or text 988).',
     languageSwitch: 'Language',
     updated: 'Last updated',
     readMore: 'Read more',

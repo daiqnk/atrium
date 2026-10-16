@@ -6,7 +6,6 @@ category: 呼吸
 duration: 3 分钟
 difficulty: easy
 tags: [焦虑, 压力, 呼吸]
-aiAssisted: true
 publishedAt: 2026-09-10
 ---
 

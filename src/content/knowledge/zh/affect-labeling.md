@@ -5,7 +5,6 @@ description: 给感受起个名字，本身就可能是一种温和的情绪调�
 category: 情绪调节
 tags: [焦虑, 压力, 情绪, 自我觉察]
 readingTime: 5
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

@@ -5,7 +5,6 @@ description: Lisa Feldman Barrett 的核心观点——情绪词汇越细，回�
 category: 情绪科学
 tags: [情绪, 自我觉察, 调节]
 readingTime: 6
-aiAssisted: true
 publishedAt: 2026-08-15
 ---
 

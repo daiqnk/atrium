@@ -5,7 +5,6 @@ description: Lisa Feldman Barrett's core insight — the finer your emotion voca
 category: Emotion Science
 tags: [emotion, self-awareness, regulation]
 readingTime: 6
-aiAssisted: true
 publishedAt: 2026-08-15
 ---
 

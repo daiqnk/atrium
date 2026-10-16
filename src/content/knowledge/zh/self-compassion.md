@@ -5,7 +5,6 @@ description: 自我关怀不是自我放纵。心理学家 Kristin Neff 把它�
 category: 自我接纳
 tags: [接纳, 自我关怀, 自我, 情绪]
 readingTime: 6
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

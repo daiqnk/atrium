@@ -5,7 +5,6 @@ description: 我们的大脑并非中立的事实机器——它有一套固定�
 category: 认知行为
 tags: [CBT, 思维, 焦虑, 抑郁]
 readingTime: 8
-aiAssisted: true
 publishedAt: 2026-08-25
 ---
 

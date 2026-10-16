@@ -5,7 +5,6 @@ description: Reading your body's stress response as "my body is getting me ready
 category: Stress
 tags: [stress, tension, anxiety, thinking]
 readingTime: 6
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

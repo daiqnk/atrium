@@ -6,7 +6,6 @@ category: 身体调节
 duration: 10 分钟
 difficulty: medium
 tags: [压力, 睡眠, 身体]
-aiAssisted: true
 publishedAt: 2026-08-30
 ---
 

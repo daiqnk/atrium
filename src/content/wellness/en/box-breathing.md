@@ -6,7 +6,6 @@ category: Breathing
 duration: 3 minutes
 difficulty: easy
 tags: [anxiety, stress, breathing]
-aiAssisted: true
 publishedAt: 2026-09-10
 ---
 

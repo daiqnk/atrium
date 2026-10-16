@@ -6,7 +6,6 @@ category: Positive Psychology
 duration: 3 minutes
 difficulty: easy
 tags: [acceptance, positive-psychology, sleep]
-aiAssisted: true
 publishedAt: 2026-09-05
 ---
 

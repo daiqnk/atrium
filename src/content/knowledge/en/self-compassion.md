@@ -5,7 +5,6 @@ description: Self-compassion is not self-indulgence. Psychologist Kristin Neff b
 category: Self-acceptance
 tags: [acceptance, self-compassion, self, emotion]
 readingTime: 6
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

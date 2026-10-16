@@ -1,29 +1,22 @@
 ---
 /**
- * 文章 / 练习页底部的说明块：AI 辅助声明 + 非专业免责声明 + 求助指引。
+ * 文章 / 练习页底部的说明块：非专业免责声明 + 求助指引。
  */
 interface Props {
   locale: 'zh' | 'en';
-  aiAssisted?: boolean;
 }
-const { locale, aiAssisted = false } = Astro.props;
+const { locale } = Astro.props;
 ---
 
 <aside class="content-notice" role="note">
   {locale === 'zh' ? (
     <>
-      {aiAssisted && (
-        <p><strong>写作说明：</strong>本文由 AI 辅助撰写，文中引用的研究已核对原始文献信息（作者、期刊、DOI）。</p>
-      )}
       <p>
         <strong>免责声明：</strong>本站内容仅用于心理健康科普与日常自助练习。作者不是执业医生或心理咨询师，内容不构成诊断、治疗或专业建议。如果困扰持续或影响生活，请寻求专业帮助；紧急情况请拨打 120 / 110，或全国心理援助热线 <strong>12356</strong>。
       </p>
     </>
   ) : (
     <>
-      {aiAssisted && (
-        <p><strong>How this was written:</strong> drafted with AI assistance; the cited studies were checked against the original publication details (authors, journal, DOI).</p>
-      )}
       <p>
         <strong>Disclaimer:</strong> this site offers general wellbeing education and self-help practices only. The author is not a licensed clinician or therapist, and nothing here is a diagnosis, treatment or professional advice. If difficulties persist or affect your life, please seek professional help. In a crisis, contact local emergency services (in the US, call or text 988).
       </p>

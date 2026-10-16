@@ -5,7 +5,6 @@ description: 每次在任务之间来回切换，大脑都要付出「重新进�
 category: 专注
 tags: [专注, 注意, 压力, 习惯]
 readingTime: 5
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 

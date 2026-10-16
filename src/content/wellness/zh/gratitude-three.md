@@ -6,7 +6,6 @@ category: 积极心理
 duration: 3 分钟
 difficulty: easy
 tags: [接纳, 积极心理, 睡眠]
-aiAssisted: true
 publishedAt: 2026-09-05
 ---
 

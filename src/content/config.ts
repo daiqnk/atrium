@@ -63,8 +63,6 @@ const knowledge = defineCollection({
     category: z.string(),
     tags: z.array(z.string()).default([]),
     readingTime: z.number().optional(),
-    /** 是否 AI 辅助撰写（为 true 时文末自动加说明） */
-    aiAssisted: z.boolean().default(false),
     publishedAt: z.coerce.date(),
   }),
 });
@@ -80,7 +78,6 @@ const wellness = defineCollection({
     difficulty: z.enum(['easy', 'medium', 'hard']).default('easy'),
     /** 用于归入需求场景（见 src/data/scenes.ts） */
     tags: z.array(z.string()).default([]),
-    aiAssisted: z.boolean().default(false),
     publishedAt: z.coerce.date(),
   }),
 });

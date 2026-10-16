@@ -5,7 +5,6 @@ description: Carol Dweck's 30-year research — saying "you're so smart" might b
 category: Motivation & Learning
 tags: [mindset, parenting, learning, resilience]
 readingTime: 7
-aiAssisted: true
 publishedAt: 2026-08-05
 ---
 

@@ -5,7 +5,6 @@ description: A sleep-lab study found that writing down upcoming tasks before bed
 category: Sleep
 tags: [sleep, insomnia, anxiety, worry]
 readingTime: 5
-aiAssisted: true
 publishedAt: 2026-10-16
 ---
 
