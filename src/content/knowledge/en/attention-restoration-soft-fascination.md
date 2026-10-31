@@ -1,7 +1,7 @@
 ---
 locale: en
 title: "Why Scrolling Does Not Rest Your Brain: Attention Restoration Theory and Soft Fascination"
-description: "Starting from everyday lived experience, explore peer-reviewed psychology insights and a 3-minute grounding routine."
+description: "Directed attention fatigues with use; soft fascination in gentle environments can restore it—while rapid feeds usually do the opposite."
 category: "Focus & Recovery"
 tags: [专注, 觉察, 压力, focus, stress]
 readingTime: 5
@@ -11,17 +11,17 @@ publishedAt: 2026-10-31
 
 ## Why This Experience Is More Common Than You Think
 
-When mental bandwidth is stretched thin, it is easy to blame yourself for not bouncing back immediately. In reality, this tension is often a normal protective response of an overworked nervous system rather than a personal failing.
+After a day of meetings and message threads, "just scrolling for a bit" often leaves you more drained, not restored. That is less a willpower failure than directed attention running empty: the capacity that filters distraction and holds a goal is limited. When it is depleted, anything that still demands constant selection and judgment makes fatigue feel worse.
 
 ## What Psychology Research Shows
 
-Empirical research in psychology and neuroscience (see the peer-reviewed DOI source below) shows that open cognitive loops and sustained ambiguity tax executive attention. Rather than forcing suppression, shifting to a gentle sensory anchor or a clear external boundary helps down-regulate arousal.
+Attention Restoration Theory proposes that soft fascination—gentle, undemanding stimuli such as shifting light, distant water, or rustling leaves—holds a little attention without heavily taxing directed attention, which helps restore mental bandwidth. Empirical work in environmental psychology has examined how soft fascination and mental bandwidth interact in restorative settings (see the DOI below). By contrast, rapid feeds with strong hooks and endless "next" cues behave more like hard fascination: they keep pulling evaluation and choice, so directed attention keeps working instead of recovering.
 
 ## A 3-Minute Everyday Practice
 
-1. **Name the state without judgment**: Notice one physical signal (tight shoulders, shallow breath) without criticizing yourself for feeling it.
-2. **Switch to a single low-demand sensory cue**: Step away from rapid feeds for three minutes and follow one slow rhythm of breath, sound, or touch.
-3. **Shrink the horizon**: Choose one small, concrete action for the next five minutes and leave the rest for later.
+1. **Name the state**: Say privately, "My directed attention is full," instead of scolding yourself for "wasting time again."
+2. **Swap in soft sensory blank space**: Step off-screen for three minutes. Rest attention on one slow cue—clouds outside, the warmth of a mug, or a single wordless ambient sound—without grading the experience.
+3. **Re-enter with one tiny act**: Pick one concrete step for the next five minutes (one necessary reply, standing up for water). Let recovery land in a body action, not another refresh.
 
 ## When to Seek Professional Support
 
@@ -29,4 +29,4 @@ This article offers general wellbeing education and self-help practices, not cli
 
 ## References
 
-- Primary empirical reference verified via Crossref DOI: https://doi.org/10.1111/j.1467-9280.2008.02225.x
+- Primary empirical reference verified via Crossref DOI: https://doi.org/10.1177/0013916518774400
